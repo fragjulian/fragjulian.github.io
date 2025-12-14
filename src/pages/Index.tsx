@@ -1,6 +1,7 @@
 import { Linkedin, Mail } from 'lucide-react';
 import FluidCursor from '@/components/FluidCursor';
 import ThemeToggle from '@/components/ThemeToggle';
+import profilePhoto from '@/assets/profile-photo.jpeg';
 
 const Index = () => {
   return (
@@ -13,8 +14,8 @@ const Index = () => {
         <div className="mb-8 animate-fade-in">
           <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-foreground/30 overflow-hidden shadow-2xl backdrop-blur-sm">
             <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face"
-              alt="John Doe"
+              src={profilePhoto}
+              alt="Julian Fragner"
               className="w-full h-full object-cover"
             />
           </div>
@@ -26,21 +27,28 @@ const Index = () => {
             Hello! I'm
           </p>
           <h1 className="text-5xl md:text-7xl font-bold text-foreground tracking-tight">
-            John Doe
+            Julian Fragner
           </h1>
           <p className="text-lg md:text-xl text-foreground/80 max-w-md">
             A pragmatic software developer based in Austria
           </p>
           <p className="text-base md:text-lg text-muted-foreground">
             Frontend software engineer @{' '}
-            <span className="text-foreground/90 font-medium">Dynatrace</span>
+            <a 
+              href="https://www.dynatrace.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-foreground/90 font-medium hover:text-foreground transition-colors"
+            >
+              Dynatrace
+            </a>
           </p>
         </div>
 
         {/* Social Links */}
         <div className="mt-10 flex items-center gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/julian-fragner/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-300 group"
@@ -50,7 +58,7 @@ const Index = () => {
           </a>
           <span className="text-muted-foreground/50">/</span>
           <a
-            href="mailto:john@example.com"
+            href="mailto:julian.fragner@gmail.com"
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-300 group"
           >
             <Mail className="w-5 h-5 group-hover:scale-110 transition-transform" />
