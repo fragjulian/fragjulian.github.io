@@ -5,7 +5,7 @@ import profilePhoto from '@/assets/profile-photo.jpeg';
 
 const Index = () => {
   return (
-    <div className="relative h-screen flex items-center justify-center overflow-hidden bg-background">
+    <div className="relative h-dvh flex items-center justify-center overflow-hidden bg-background">
       <FluidCursor />
       <ThemeToggle />
       
