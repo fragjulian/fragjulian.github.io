@@ -1,10 +1,10 @@
 import { Linkedin, Mail } from 'lucide-react';
-import FluidBackground from '@/components/FluidBackground';
+import FluidCursor from '@/components/FluidCursor';
 
 const Index = () => {
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <FluidBackground />
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a14]">
+      <FluidCursor />
       
       <main className="relative z-10 flex flex-col items-center text-center px-6">
         {/* Profile Photo */}
