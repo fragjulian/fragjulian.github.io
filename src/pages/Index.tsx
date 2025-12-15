@@ -1,15 +1,21 @@
+import { useState } from 'react';
 import { Linkedin, Mail } from 'lucide-react';
 import FluidCursor from '@/components/FluidCursor';
+import type { FluidColorMode } from '@/components/FluidCursor';
 import ThemeToggle from '@/components/ThemeToggle';
 import CustomCursor from '@/components/CustomCursor';
+import FluidControls from '@/components/FluidControls';
 import profilePhoto from '@/assets/profile-photo.jpeg';
 
 const Index = () => {
+  const [fluidColorMode, setFluidColorMode] = useState<FluidColorMode>('rainbow');
+
   return (
     <div className="relative h-dvh flex items-center justify-center overflow-hidden bg-background">
-      <FluidCursor />
+      <FluidCursor colorMode={fluidColorMode} />
       <ThemeToggle />
       <CustomCursor />
+      <FluidControls colorMode={fluidColorMode} onColorModeChange={setFluidColorMode} />
       
       <main className="relative z-10 flex flex-col items-center text-center px-6">
         {/* Profile Photo */}
