@@ -736,11 +736,42 @@ const FluidCursor = ({
     let lastUpdateTime = Date.now();
     let colorUpdateTimer = 0.0;
     let animationId: number;
+    
+    // Idle ambient animation state
+    let lastInteractionTime = Date.now();
+    let idleSplatTimer = 0;
+    const IDLE_THRESHOLD = 2000; // Start ambient after 2 seconds of no interaction
+    const IDLE_SPLAT_INTERVAL = 0.8; // Seconds between ambient splats
+
+    function createAmbientSplat() {
+      const x = Math.random();
+      const y = Math.random();
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 15 + Math.random() * 20;
+      const dx = Math.cos(angle) * speed;
+      const dy = Math.sin(angle) * speed;
+      const color = generateColor();
+      color.r *= 8;
+      color.g *= 8;
+      color.b *= 8;
+      splat(x, y, dx, dy, color);
+    }
 
     function updateFrame() {
       const dt = calcDeltaTime();
       if (resizeCanvas()) initFramebuffers();
       updateColors(dt);
+      
+      // Check for idle state and create ambient splats
+      const timeSinceInteraction = Date.now() - lastInteractionTime;
+      if (timeSinceInteraction > IDLE_THRESHOLD) {
+        idleSplatTimer += dt;
+        if (idleSplatTimer >= IDLE_SPLAT_INTERVAL) {
+          idleSplatTimer = 0;
+          createAmbientSplat();
+        }
+      }
+      
       applyInputs();
       step(dt);
       render(null);
@@ -975,6 +1006,8 @@ const FluidCursor = ({
 
     // Event listeners
     const handleMouseDown = (e: MouseEvent) => {
+      lastInteractionTime = Date.now();
+      idleSplatTimer = 0;
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
@@ -983,6 +1016,8 @@ const FluidCursor = ({
     };
 
     const handleMouseMove = (e: MouseEvent) => {
+      lastInteractionTime = Date.now();
+      idleSplatTimer = 0;
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
@@ -990,6 +1025,8 @@ const FluidCursor = ({
     };
 
     const handleTouchStart = (e: TouchEvent) => {
+      lastInteractionTime = Date.now();
+      idleSplatTimer = 0;
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
@@ -1000,6 +1037,8 @@ const FluidCursor = ({
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      lastInteractionTime = Date.now();
+      idleSplatTimer = 0;
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
