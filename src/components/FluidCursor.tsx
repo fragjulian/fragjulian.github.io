@@ -740,8 +740,8 @@ const FluidCursor = ({
     // Idle ambient animation state
     let lastInteractionTime = Date.now();
     let idleSplatTimer = 0;
+    let nextIdleInterval = 3 + Math.random() * 4; // Random 3-7 seconds
     const IDLE_THRESHOLD = 2000; // Start ambient after 2 seconds of no interaction
-    const IDLE_SPLAT_INTERVAL = 4; // Seconds between ambient movements
     
     // Ambient movement state
     let ambientMovement: {
@@ -753,6 +753,8 @@ const FluidCursor = ({
       color: ColorRGB;
       steps: number;
       currentStep: number;
+      frameSkip: number;
+      frameCount: number;
     } | null = null;
 
     function startAmbientMovement() {
@@ -781,11 +783,9 @@ const FluidCursor = ({
         endY = startY + Math.sin(angle) * distance;
       }
       
-      const steps = 20 + Math.floor(Math.random() * 15);
+      const steps = 35 + Math.floor(Math.random() * 20); // More steps for slower movement
+      // Use the same color generation as user interaction
       const color = generateColor();
-      color.r *= 6;
-      color.g *= 6;
-      color.b *= 6;
       
       ambientMovement = {
         active: true,
@@ -796,6 +796,8 @@ const FluidCursor = ({
         color,
         steps,
         currentStep: 0,
+        frameSkip: 2, // Only update every 2 frames for slower movement
+        frameCount: 0,
       };
     }
 
@@ -803,7 +805,12 @@ const FluidCursor = ({
       if (!ambientMovement || !ambientMovement.active) return;
       
       const m = ambientMovement;
-      const speed = 25;
+      m.frameCount++;
+      
+      // Skip frames for slower movement
+      if (m.frameCount % m.frameSkip !== 0) return;
+      
+      const speed = 18;
       splat(m.x, m.y, m.dx * speed * 100, m.dy * speed * 100, m.color);
       
       m.x += m.dx;
@@ -812,6 +819,8 @@ const FluidCursor = ({
       
       if (m.currentStep >= m.steps) {
         ambientMovement = null;
+        // Set next random interval
+        nextIdleInterval = 3 + Math.random() * 5; // Random 3-8 seconds
       }
     }
 
@@ -827,7 +836,7 @@ const FluidCursor = ({
           updateAmbientMovement();
         } else {
           idleSplatTimer += dt;
-          if (idleSplatTimer >= IDLE_SPLAT_INTERVAL) {
+          if (idleSplatTimer >= nextIdleInterval) {
             idleSplatTimer = 0;
             startAmbientMovement();
           }
