@@ -741,20 +741,78 @@ const FluidCursor = ({
     let lastInteractionTime = Date.now();
     let idleSplatTimer = 0;
     const IDLE_THRESHOLD = 2000; // Start ambient after 2 seconds of no interaction
-    const IDLE_SPLAT_INTERVAL = 0.8; // Seconds between ambient splats
+    const IDLE_SPLAT_INTERVAL = 4; // Seconds between ambient movements
+    
+    // Ambient movement state
+    let ambientMovement: {
+      active: boolean;
+      x: number;
+      y: number;
+      dx: number;
+      dy: number;
+      color: ColorRGB;
+      steps: number;
+      currentStep: number;
+    } | null = null;
 
-    function createAmbientSplat() {
-      const x = Math.random();
-      const y = Math.random();
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 15 + Math.random() * 20;
-      const dx = Math.cos(angle) * speed;
-      const dy = Math.sin(angle) * speed;
+    function startAmbientMovement() {
+      // Random start position on edge or inside
+      const startEdge = Math.random() < 0.5;
+      let startX: number, startY: number, endX: number, endY: number;
+      
+      if (startEdge) {
+        // Start from edge, move inward
+        const edge = Math.floor(Math.random() * 4);
+        switch (edge) {
+          case 0: startX = 0; startY = Math.random(); break; // left
+          case 1: startX = 1; startY = Math.random(); break; // right
+          case 2: startX = Math.random(); startY = 0; break; // top
+          default: startX = Math.random(); startY = 1; break; // bottom
+        }
+        endX = 0.3 + Math.random() * 0.4;
+        endY = 0.3 + Math.random() * 0.4;
+      } else {
+        // Random path across screen
+        startX = Math.random();
+        startY = Math.random();
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 0.2 + Math.random() * 0.3;
+        endX = startX + Math.cos(angle) * distance;
+        endY = startY + Math.sin(angle) * distance;
+      }
+      
+      const steps = 20 + Math.floor(Math.random() * 15);
       const color = generateColor();
-      color.r *= 8;
-      color.g *= 8;
-      color.b *= 8;
-      splat(x, y, dx, dy, color);
+      color.r *= 6;
+      color.g *= 6;
+      color.b *= 6;
+      
+      ambientMovement = {
+        active: true,
+        x: startX,
+        y: startY,
+        dx: (endX - startX) / steps,
+        dy: (endY - startY) / steps,
+        color,
+        steps,
+        currentStep: 0,
+      };
+    }
+
+    function updateAmbientMovement() {
+      if (!ambientMovement || !ambientMovement.active) return;
+      
+      const m = ambientMovement;
+      const speed = 25;
+      splat(m.x, m.y, m.dx * speed * 100, m.dy * speed * 100, m.color);
+      
+      m.x += m.dx;
+      m.y += m.dy;
+      m.currentStep++;
+      
+      if (m.currentStep >= m.steps) {
+        ambientMovement = null;
+      }
     }
 
     function updateFrame() {
@@ -762,14 +820,21 @@ const FluidCursor = ({
       if (resizeCanvas()) initFramebuffers();
       updateColors(dt);
       
-      // Check for idle state and create ambient splats
+      // Check for idle state and create ambient movements
       const timeSinceInteraction = Date.now() - lastInteractionTime;
       if (timeSinceInteraction > IDLE_THRESHOLD) {
-        idleSplatTimer += dt;
-        if (idleSplatTimer >= IDLE_SPLAT_INTERVAL) {
-          idleSplatTimer = 0;
-          createAmbientSplat();
+        if (ambientMovement && ambientMovement.active) {
+          updateAmbientMovement();
+        } else {
+          idleSplatTimer += dt;
+          if (idleSplatTimer >= IDLE_SPLAT_INTERVAL) {
+            idleSplatTimer = 0;
+            startAmbientMovement();
+          }
         }
+      } else {
+        // User interacting - cancel any ambient movement
+        ambientMovement = null;
       }
       
       applyInputs();
