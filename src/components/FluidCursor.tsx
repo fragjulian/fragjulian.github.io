@@ -7,6 +7,8 @@ interface ColorRGB {
   b: number;
 }
 
+export type FluidColorMode = 'rainbow' | 'monochrome' | 'disabled';
+
 interface FluidCursorProps {
   className?: string;
   simResolution?: number;
@@ -21,6 +23,7 @@ interface FluidCursorProps {
   shading?: boolean;
   colorUpdateSpeed?: number;
   transparent?: boolean;
+  colorMode?: FluidColorMode;
 }
 
 interface Pointer {
@@ -65,8 +68,15 @@ const FluidCursor = ({
   shading = true,
   colorUpdateSpeed = 10,
   transparent = true,
+  colorMode = 'rainbow',
 }: FluidCursorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const colorModeRef = useRef(colorMode);
+  
+  // Update ref when prop changes
+  useEffect(() => {
+    colorModeRef.current = colorMode;
+  }, [colorMode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1047,6 +1057,13 @@ const FluidCursor = ({
     }
 
     function generateColor(): ColorRGB {
+      if (colorModeRef.current === 'monochrome') {
+        // Check if dark mode is active
+        const isDark = document.documentElement.classList.contains('dark');
+        const intensity = isDark ? 0.2 : 0.08;
+        return { r: intensity, g: intensity, b: intensity };
+      }
+      // Rainbow mode
       const c = HSVtoRGB(Math.random(), 1.0, 1.0);
       c.r *= 0.15;
       c.g *= 0.15;
@@ -1145,6 +1162,10 @@ const FluidCursor = ({
       window.removeEventListener('touchend', handleTouchEnd);
     };
   }, [simResolution, dyeResolution, densityDissipation, velocityDissipation, pressure, pressureIterations, curl, splatRadius, splatForce, shading, colorUpdateSpeed, transparent]);
+
+  if (colorMode === 'disabled') {
+    return null;
+  }
 
   return (
     <div className={cn('pointer-events-none fixed inset-0 z-0', className)}>
