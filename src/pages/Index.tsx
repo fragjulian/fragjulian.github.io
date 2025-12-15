@@ -1,6 +1,7 @@
 import { Linkedin, Mail } from 'lucide-react';
 import FluidCursor from '@/components/FluidCursor';
 import ThemeToggle from '@/components/ThemeToggle';
+import CustomCursor from '@/components/CustomCursor';
 import profilePhoto from '@/assets/profile-photo.jpeg';
 
 const Index = () => {
@@ -8,6 +9,7 @@ const Index = () => {
     <div className="relative h-dvh flex items-center justify-center overflow-hidden bg-background">
       <FluidCursor />
       <ThemeToggle />
+      <CustomCursor />
       
       <main className="relative z-10 flex flex-col items-center text-center px-6">
         {/* Profile Photo */}
