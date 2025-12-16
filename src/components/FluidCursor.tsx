@@ -1060,8 +1060,10 @@ const FluidCursor = ({
       if (colorModeRef.current === 'monochrome') {
         // Check if dark mode is active - in dark mode use light colors, in light mode use dark colors
         const isDark = document.documentElement.classList.contains('dark');
-        const intensity = isDark ? 0.2 : 0.15; // Light mode gets dark fluid (higher intensity = darker)
-        return isDark ? { r: intensity, g: intensity, b: intensity } : { r: 0.02, g: 0.02, b: 0.02 };
+        // Higher values = more visible fluid. Use values similar to rainbow mode intensity
+        return isDark 
+          ? { r: 0.3, g: 0.3, b: 0.3 } 
+          : { r: 0.25, g: 0.2, b: 0.15 }; // Visible dark sepia tone for light mode
       }
       // Rainbow mode
       const c = HSVtoRGB(Math.random(), 1.0, 1.0);
