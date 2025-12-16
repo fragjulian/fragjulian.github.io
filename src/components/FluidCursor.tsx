@@ -1058,10 +1058,10 @@ const FluidCursor = ({
 
     function generateColor(): ColorRGB {
       if (colorModeRef.current === 'monochrome') {
-        // Check if dark mode is active
+        // Check if dark mode is active - in dark mode use light colors, in light mode use dark colors
         const isDark = document.documentElement.classList.contains('dark');
-        const intensity = isDark ? 0.2 : 0.08;
-        return { r: intensity, g: intensity, b: intensity };
+        const intensity = isDark ? 0.2 : 0.15; // Light mode gets dark fluid (higher intensity = darker)
+        return isDark ? { r: intensity, g: intensity, b: intensity } : { r: 0.02, g: 0.02, b: 0.02 };
       }
       // Rainbow mode
       const c = HSVtoRGB(Math.random(), 1.0, 1.0);
@@ -1115,40 +1115,9 @@ const FluidCursor = ({
       updatePointerMoveData(pointer, posX, posY, pointer.color);
     };
 
-    const handleTouchStart = (e: TouchEvent) => {
-      lastInteractionTime = Date.now();
-      idleSplatTimer = 0;
-      const touches = e.targetTouches;
-      const pointer = pointers[0];
-      for (let i = 0; i < touches.length; i++) {
-        const posX = scaleByPixelRatio(touches[i].clientX);
-        const posY = scaleByPixelRatio(touches[i].clientY);
-        updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      lastInteractionTime = Date.now();
-      idleSplatTimer = 0;
-      const touches = e.targetTouches;
-      const pointer = pointers[0];
-      for (let i = 0; i < touches.length; i++) {
-        const posX = scaleByPixelRatio(touches[i].clientX);
-        const posY = scaleByPixelRatio(touches[i].clientY);
-        updatePointerMoveData(pointer, posX, posY, pointer.color);
-      }
-    };
-
-    const handleTouchEnd = () => {
-      const pointer = pointers[0];
-      updatePointerUpData(pointer);
-    };
-
+    // Only add mouse listeners on non-touch devices
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchstart', handleTouchStart, false);
-    window.addEventListener('touchmove', handleTouchMove, false);
-    window.addEventListener('touchend', handleTouchEnd);
 
     // Start animation
     updateFrame();
@@ -1157,11 +1126,8 @@ const FluidCursor = ({
       cancelAnimationFrame(animationId);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [simResolution, dyeResolution, densityDissipation, velocityDissipation, pressure, pressureIterations, curl, splatRadius, splatForce, shading, colorUpdateSpeed, transparent]);
+  }, [simResolution, dyeResolution, densityDissipation, velocityDissipation, pressure, pressureIterations, curl, splatRadius, splatForce, shading, colorUpdateSpeed, transparent, colorMode]);
 
   if (colorMode === 'disabled') {
     return null;

@@ -4,8 +4,20 @@ const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
+    // Detect touch device
+    const checkTouchDevice = () => {
+      setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
+    };
+    checkTouchDevice();
+
+    // Don't add listeners on touch devices
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      return;
+    }
+
     const updatePosition = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
       setIsVisible(true);
@@ -40,7 +52,8 @@ const CustomCursor = () => {
     };
   }, []);
 
-  if (!isVisible) return null;
+  // Don't render on touch devices or when not visible
+  if (isTouchDevice || !isVisible) return null;
 
   return (
     <div
