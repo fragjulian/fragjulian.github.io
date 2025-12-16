@@ -1061,8 +1061,8 @@ const FluidCursor = ({
         // Check if dark mode is active - in dark mode use light colors, in light mode use dark colors
         const isDark = document.documentElement.classList.contains('dark');
         return isDark 
-          ? { r: 0.15, g: 0.15, b: 0.15 } // Reduced intensity for dark mode
-          : { r: 0.12, g: 0.12, b: 0.12 }; // Neutral gray for light mode
+          ? { r: 0.15, g: 0.15, b: 0.15 } // Light gray for dark mode
+          : { r: 0.08, g: 0.07, b: 0.06 }; // Very dark graphite (almost black) for light mode
       }
       // Rainbow mode
       const c = HSVtoRGB(Math.random(), 1.0, 1.0);
