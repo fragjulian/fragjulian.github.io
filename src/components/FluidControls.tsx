@@ -14,7 +14,7 @@ const FluidControls = ({ colorMode, onColorModeChange }: FluidControlsProps) => 
   const buttonClass = "p-3 rounded-full bg-secondary/80 backdrop-blur-sm border border-border hover:bg-secondary transition-all duration-300";
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col-reverse items-start gap-2">
+    <div className="fixed bottom-6 left-6 z-50 flex items-end gap-2">
       {/* Main toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -28,14 +28,11 @@ const FluidControls = ({ colorMode, onColorModeChange }: FluidControlsProps) => 
         )}
       </button>
 
-      {/* Control buttons */}
+      {/* Control buttons - opens to the right */}
       {isOpen && (
-        <div className="flex flex-col gap-2 animate-fade-in">
+        <div className="flex gap-2 animate-fade-in">
           <button
-            onClick={() => {
-              onColorModeChange('rainbow');
-              setIsOpen(false);
-            }}
+            onClick={() => onColorModeChange('rainbow')}
             className={`${buttonClass} ${colorMode === 'rainbow' ? 'ring-2 ring-foreground/50' : ''}`}
             aria-label="Rainbow colors"
             title="Rainbow"
@@ -44,10 +41,7 @@ const FluidControls = ({ colorMode, onColorModeChange }: FluidControlsProps) => 
           </button>
           
           <button
-            onClick={() => {
-              onColorModeChange('monochrome');
-              setIsOpen(false);
-            }}
+            onClick={() => onColorModeChange('monochrome')}
             className={`${buttonClass} ${colorMode === 'monochrome' ? 'ring-2 ring-foreground/50' : ''}`}
             aria-label="Monochrome colors"
             title="Monochrome"
@@ -56,10 +50,7 @@ const FluidControls = ({ colorMode, onColorModeChange }: FluidControlsProps) => 
           </button>
           
           <button
-            onClick={() => {
-              onColorModeChange('disabled');
-              setIsOpen(false);
-            }}
+            onClick={() => onColorModeChange('disabled')}
             className={`${buttonClass} ${colorMode === 'disabled' ? 'ring-2 ring-foreground/50' : ''}`}
             aria-label="Disable fluid animation"
             title="Disabled"
