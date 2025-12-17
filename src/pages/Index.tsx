@@ -16,14 +16,12 @@ const educationItems = [
 const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
-    let scrollTimeout: NodeJS.Timeout;
 
     const handleScroll = () => {
       const scrollTop = container.scrollTop;
@@ -31,21 +29,13 @@ const Index = () => {
       const newPage = Math.round(scrollTop / pageHeight);
       
       if (newPage !== currentPage) {
-        setIsScrolling(true);
         setCurrentPage(newPage);
-        
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          setIsScrolling(false);
-        }, 400);
+        setAnimationKey(prev => prev + 1); // Trigger re-animation
       }
     };
 
     container.addEventListener('scroll', handleScroll);
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
-    };
+    return () => container.removeEventListener('scroll', handleScroll);
   }, [currentPage]);
 
   const scrollToPage = (page: number) => {
@@ -147,20 +137,23 @@ const Index = () => {
         </section>
 
         {/* Page 2 - Education */}
-        <section className={`h-dvh flex items-center justify-center snap-start transition-opacity duration-500 ${currentPage === 1 && !isScrolling ? 'opacity-100' : currentPage === 1 ? 'opacity-0' : ''}`}>
+        <section className="h-dvh flex items-center justify-center snap-start">
           <div className="relative z-10 flex flex-col items-center px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-16">Education</h2>
+            <h2 
+              key={`title-${animationKey}`}
+              className="text-3xl md:text-4xl font-bold text-foreground mb-16 animate-fade-in"
+            >
+              Education
+            </h2>
             
             {/* Timeline - centered */}
             <div className="relative">
               <div className="flex flex-col gap-12">
                 {educationItems.map((item, index) => (
                   <div 
-                    key={index} 
-                    className="relative flex flex-col items-center"
-                    style={{ 
-                      animation: currentPage === 1 ? `fade-in 0.5s ease-out ${index * 0.15}s both` : 'none'
-                    }}
+                    key={`${index}-${animationKey}`}
+                    className="relative flex flex-col items-center animate-fade-in"
+                    style={{ animationDelay: `${(index + 1) * 0.1}s` }}
                   >
                     {/* Connecting line to next item */}
                     {index < educationItems.length - 1 && (
