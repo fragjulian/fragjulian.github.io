@@ -50,12 +50,12 @@ const Index = () => {
       <FluidControls enabled={fluidEnabled} onToggle={() => setFluidEnabled(!fluidEnabled)} />
       
       {/* Page indicators */}
-      <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3">
+      <div className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 md:gap-3">
         {[0, 1].map((page) => (
           <button
             key={page}
             onClick={() => scrollToPage(page)}
-            className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
+            className={`w-1.5 h-1.5 md:w-2.5 md:h-2.5 rounded-full transition-all duration-300 ${
               currentPage === page 
                 ? 'bg-foreground scale-100' 
                 : 'bg-foreground/30 scale-75 hover:bg-foreground/50'
@@ -133,37 +133,37 @@ const Index = () => {
 
         {/* Page 2 - Education */}
         <section className="h-dvh flex items-center justify-center snap-start">
-          <div className="relative z-10 px-6 md:px-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-16 text-center">Education</h2>
+          <div className="relative z-10 flex flex-col items-center px-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-16">Education</h2>
             
-            {/* Timeline */}
-            <div className="relative pl-20 md:pl-28">
+            {/* Timeline - centered */}
+            <div className="relative">
               {/* Vertical line */}
-              <div className="absolute left-12 md:left-16 top-0 bottom-0 w-px bg-foreground/20" />
+              <div className="absolute left-1/2 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-foreground/30 to-transparent -translate-x-1/2" />
               
-              <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-12">
                 {educationItems.map((item, index) => (
                   <div 
                     key={index} 
-                    className="relative flex items-start animate-fade-in"
-                    style={{ animationDelay: `${index * 0.1}s` }}
+                    className="relative flex flex-col items-center animate-fade-in"
+                    style={{ animationDelay: `${index * 0.15}s` }}
                   >
-                    {/* Year on left side of line */}
-                    <div className="absolute -left-20 md:-left-28 w-16 md:w-24 text-right">
-                      <span className="text-sm font-semibold text-foreground/70">
-                        {item.year}
-                      </span>
+                    {/* Year badge with glow effect */}
+                    <div className="relative z-10 mb-4">
+                      <div className="absolute inset-0 bg-foreground/10 blur-xl rounded-full" />
+                      <div className="relative bg-background border border-foreground/20 px-4 py-1.5 rounded-full">
+                        <span className="text-sm font-medium text-foreground/80">
+                          {item.year}
+                        </span>
+                      </div>
                     </div>
                     
-                    {/* Dot on the line */}
-                    <div className="absolute -left-[33px] md:-left-[45px] w-2 h-2 rounded-full bg-foreground mt-2" />
-                    
-                    {/* Content - left aligned */}
-                    <div className="text-left">
-                      <h3 className="text-xl md:text-2xl font-semibold text-foreground">
+                    {/* Content card */}
+                    <div className="text-center max-w-xs">
+                      <h3 className="text-lg md:text-xl font-semibold text-foreground">
                         {item.title}
                       </h3>
-                      <p className="text-muted-foreground mt-1">
+                      <p className="text-muted-foreground text-sm mt-1">
                         {item.institution}
                       </p>
                     </div>
