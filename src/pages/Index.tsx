@@ -16,22 +16,37 @@ const educationItems = [
 const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
+    let scrollTimeout: NodeJS.Timeout;
+
     const handleScroll = () => {
       const scrollTop = container.scrollTop;
       const pageHeight = container.clientHeight;
       const newPage = Math.round(scrollTop / pageHeight);
-      setCurrentPage(newPage);
+      
+      if (newPage !== currentPage) {
+        setIsScrolling(true);
+        setCurrentPage(newPage);
+        
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          setIsScrolling(false);
+        }, 400);
+      }
     };
 
     container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [currentPage]);
 
   const scrollToPage = (page: number) => {
     const container = containerRef.current;
@@ -132,7 +147,7 @@ const Index = () => {
         </section>
 
         {/* Page 2 - Education */}
-        <section className="h-dvh flex items-center justify-center snap-start">
+        <section className={`h-dvh flex items-center justify-center snap-start transition-opacity duration-500 ${currentPage === 1 && !isScrolling ? 'opacity-100' : currentPage === 1 ? 'opacity-0' : ''}`}>
           <div className="relative z-10 flex flex-col items-center px-6">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-16">Education</h2>
             
@@ -142,8 +157,10 @@ const Index = () => {
                 {educationItems.map((item, index) => (
                   <div 
                     key={index} 
-                    className="relative flex flex-col items-center animate-fade-in"
-                    style={{ animationDelay: `${index * 0.15}s` }}
+                    className="relative flex flex-col items-center"
+                    style={{ 
+                      animation: currentPage === 1 ? `fade-in 0.5s ease-out ${index * 0.15}s both` : 'none'
+                    }}
                   >
                     {/* Connecting line to next item */}
                     {index < educationItems.length - 1 && (
@@ -152,7 +169,7 @@ const Index = () => {
                     
                     {/* Year badge */}
                     <div className="relative z-10 mb-3">
-                      <div className="bg-background border border-foreground/20 px-4 py-1.5 rounded-full shadow-sm">
+                      <div className="backdrop-blur-md bg-background/70 border border-foreground/20 px-4 py-1.5 rounded-full shadow-sm">
                         <span className="text-sm font-medium text-foreground/80">
                           {item.year}
                         </span>
@@ -160,7 +177,7 @@ const Index = () => {
                     </div>
                     
                     {/* Content */}
-                    <div className="text-center max-w-xs bg-background px-4">
+                    <div className="text-center max-w-xs backdrop-blur-md bg-background/60 px-4 py-2 rounded-xl">
                       <h3 className="text-lg md:text-xl font-semibold text-foreground">
                         {item.title}
                       </h3>
