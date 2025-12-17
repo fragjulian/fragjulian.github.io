@@ -7,7 +7,7 @@ interface ColorRGB {
   b: number;
 }
 
-export type FluidColorMode = 'rainbow' | 'monochrome' | 'disabled';
+export type FluidColorMode = 'enabled' | 'disabled';
 
 interface FluidCursorProps {
   className?: string;
@@ -68,7 +68,7 @@ const FluidCursor = ({
   shading = true,
   colorUpdateSpeed = 10,
   transparent = true,
-  colorMode = 'rainbow',
+  colorMode = 'enabled',
 }: FluidCursorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const colorModeRef = useRef(colorMode);
@@ -830,7 +830,7 @@ const FluidCursor = ({
       if (m.currentStep >= m.steps) {
         ambientMovement = null;
         // Set next random interval
-        nextIdleInterval = 3 + Math.random() * 5; // Random 3-8 seconds
+        nextIdleInterval = 1.5 + Math.random() * 2.5; // Random 1.5-4 seconds
       }
     }
 
@@ -1057,18 +1057,11 @@ const FluidCursor = ({
     }
 
     function generateColor(): ColorRGB {
-      if (colorModeRef.current === 'monochrome') {
-        // Check if dark mode is active - in dark mode use light colors, in light mode use dark colors
-        const isDark = document.documentElement.classList.contains('dark');
-        return isDark 
-          ? { r: 0.15, g: 0.15, b: 0.15 } // Light gray for dark mode
-          : { r: 0.08, g: 0.07, b: 0.06 }; // Very dark graphite (almost black) for light mode
-      }
-      // Rainbow mode
+      // Rainbow mode with reduced intensity
       const c = HSVtoRGB(Math.random(), 1.0, 1.0);
-      c.r *= 0.15;
-      c.g *= 0.15;
-      c.b *= 0.15;
+      c.r *= 0.1;
+      c.g *= 0.1;
+      c.b *= 0.1;
       return c;
     }
 

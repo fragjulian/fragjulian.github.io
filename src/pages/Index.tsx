@@ -14,7 +14,7 @@ const educationItems = [
 ];
 
 const Index = () => {
-  const [fluidColorMode, setFluidColorMode] = useState<FluidColorMode>('rainbow');
+  const [fluidEnabled, setFluidEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,10 +44,10 @@ const Index = () => {
 
   return (
     <div className="relative h-dvh overflow-hidden bg-background">
-      <FluidCursor colorMode={fluidColorMode} />
+      <FluidCursor colorMode={fluidEnabled ? 'enabled' : 'disabled'} />
       <ThemeToggle />
       <CustomCursor />
-      <FluidControls colorMode={fluidColorMode} onColorModeChange={setFluidColorMode} />
+      <FluidControls enabled={fluidEnabled} onToggle={() => setFluidEnabled(!fluidEnabled)} />
       
       {/* Page indicators */}
       <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3">
@@ -55,7 +55,7 @@ const Index = () => {
           <button
             key={page}
             onClick={() => scrollToPage(page)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
               currentPage === page 
                 ? 'bg-foreground scale-100' 
                 : 'bg-foreground/30 scale-75 hover:bg-foreground/50'
@@ -68,7 +68,7 @@ const Index = () => {
       {/* Snap scroll container */}
       <div 
         ref={containerRef}
-        className="h-full overflow-y-auto snap-y snap-mandatory"
+        className="h-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
       >
         {/* Page 1 - Hero */}
         <section className="h-dvh flex items-center justify-center snap-start">
@@ -133,28 +133,33 @@ const Index = () => {
 
         {/* Page 2 - Education */}
         <section className="h-dvh flex items-center justify-center snap-start">
-          <div className="relative z-10 flex flex-col items-center text-center px-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-16">Education</h2>
+          <div className="relative z-10 px-6 md:px-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-16 text-center">Education</h2>
             
             {/* Timeline */}
-            <div className="relative">
+            <div className="relative pl-20 md:pl-28">
               {/* Vertical line */}
-              <div className="absolute left-1/2 top-0 bottom-0 w-px bg-foreground/20 -translate-x-1/2" />
+              <div className="absolute left-12 md:left-16 top-0 bottom-0 w-px bg-foreground/20" />
               
-              <div className="flex flex-col gap-12">
+              <div className="flex flex-col gap-10">
                 {educationItems.map((item, index) => (
                   <div 
                     key={index} 
-                    className="relative flex flex-col items-center animate-fade-in"
+                    className="relative flex items-start animate-fade-in"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    {/* Year badge */}
-                    <div className="bg-foreground text-background px-4 py-1 rounded-full text-sm font-semibold mb-3 z-10">
-                      {item.year}
+                    {/* Year on left side of line */}
+                    <div className="absolute -left-20 md:-left-28 w-16 md:w-24 text-right">
+                      <span className="text-sm font-semibold text-foreground/70">
+                        {item.year}
+                      </span>
                     </div>
                     
-                    {/* Content */}
-                    <div className="text-center">
+                    {/* Dot on the line */}
+                    <div className="absolute -left-[33px] md:-left-[45px] w-2 h-2 rounded-full bg-foreground mt-2" />
+                    
+                    {/* Content - left aligned */}
+                    <div className="text-left">
                       <h3 className="text-xl md:text-2xl font-semibold text-foreground">
                         {item.title}
                       </h3>

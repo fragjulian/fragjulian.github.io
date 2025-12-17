@@ -127,3 +127,13 @@ All colors MUST be HSL.
 .cursor-dot.hovering {
   transform: translate(-50%, -50%) scale(2);
 }
+
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
