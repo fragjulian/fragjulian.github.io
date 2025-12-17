@@ -1,4 +1,4 @@
-import { Droplets, DropletsIcon } from 'lucide-react';
+import { Sparkles, SparklesIcon } from 'lucide-react';
 
 interface FluidControlsProps {
   enabled: boolean;
@@ -13,9 +13,9 @@ const FluidControls = ({ enabled, onToggle }: FluidControlsProps) => {
       aria-label={enabled ? "Disable fluid animation" : "Enable fluid animation"}
     >
       {enabled ? (
-        <Droplets className="w-5 h-5 text-foreground" />
+        <Sparkles className="w-5 h-5 text-foreground" />
       ) : (
-        <DropletsIcon className="w-5 h-5 text-foreground/50" />
+        <SparklesIcon className="w-5 h-5 text-foreground/50" />
       )}
     </button>
   );
