@@ -138,9 +138,6 @@ const Index = () => {
             
             {/* Timeline - centered */}
             <div className="relative">
-              {/* Vertical line */}
-              <div className="absolute left-1/2 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-foreground/30 to-transparent -translate-x-1/2" />
-              
               <div className="flex flex-col gap-12">
                 {educationItems.map((item, index) => (
                   <div 
@@ -148,18 +145,22 @@ const Index = () => {
                     className="relative flex flex-col items-center animate-fade-in"
                     style={{ animationDelay: `${index * 0.15}s` }}
                   >
-                    {/* Year badge with glow effect */}
-                    <div className="relative z-10 mb-4">
-                      <div className="absolute inset-0 bg-foreground/10 blur-xl rounded-full" />
-                      <div className="relative bg-background border border-foreground/20 px-4 py-1.5 rounded-full">
+                    {/* Connecting line to next item */}
+                    {index < educationItems.length - 1 && (
+                      <div className="absolute top-10 left-1/2 h-[calc(100%+1.5rem)] w-px bg-gradient-to-b from-foreground/20 to-foreground/10 -translate-x-1/2 -z-10" />
+                    )}
+                    
+                    {/* Year badge */}
+                    <div className="relative z-10 mb-3">
+                      <div className="bg-background border border-foreground/20 px-4 py-1.5 rounded-full shadow-sm">
                         <span className="text-sm font-medium text-foreground/80">
                           {item.year}
                         </span>
                       </div>
                     </div>
                     
-                    {/* Content card */}
-                    <div className="text-center max-w-xs">
+                    {/* Content */}
+                    <div className="text-center max-w-xs bg-background px-4">
                       <h3 className="text-lg md:text-xl font-semibold text-foreground">
                         {item.title}
                       </h3>
