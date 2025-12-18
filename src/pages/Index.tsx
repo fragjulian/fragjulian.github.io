@@ -73,7 +73,7 @@ const Index = () => {
       {/* Snap scroll container */}
       <div 
         ref={containerRef}
-        className="h-full overflow-y-auto snap-y snap-mandatory scrollbar-hide"
+        className="h-full overflow-y-auto snap-smooth scrollbar-hide"
       >
         {/* Page 1 - Hero */}
         <section className="h-dvh flex items-center justify-center snap-start">
