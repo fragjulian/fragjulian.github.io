@@ -190,23 +190,33 @@ const Index = () => {
                       <div className="absolute top-10 left-1/2 h-[calc(100%+1.5rem)] w-px bg-gradient-to-b from-foreground/20 to-foreground/10 -translate-x-1/2 -z-10" />
                     )}
                     
-                    {/* Year badge */}
-                    <div className="relative z-10 mb-3">
-                      <div className="backdrop-blur-md bg-background/70 border border-foreground/20 px-4 py-1.5 rounded-full shadow-sm">
-                        <span className="text-sm font-medium text-foreground/80">
+                    {/* Year badge - liquid glass */}
+                    <div className="relative z-10 mb-3 group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-foreground/10 via-transparent to-foreground/5 rounded-full blur-sm" />
+                      <div className="relative backdrop-blur-xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 border border-foreground/15 px-5 py-2 rounded-full shadow-lg shadow-foreground/5 overflow-hidden">
+                        {/* Inner glass reflection */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-foreground/10 via-transparent to-transparent rounded-full" />
+                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/30 to-transparent" />
+                        <span className="relative text-sm font-medium text-foreground/90">
                           {item.year}
                         </span>
                       </div>
                     </div>
                     
-                    {/* Content */}
-                    <div className="text-center max-w-xs backdrop-blur-md bg-background/60 px-4 py-2 rounded-xl">
-                      <h3 className="text-lg md:text-xl font-semibold text-foreground">
-                        {item.title}
-                      </h3>
-                      <p className="text-muted-foreground text-sm mt-1">
-                        {item.institution}
-                      </p>
+                    {/* Content - liquid glass */}
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-gradient-to-br from-foreground/10 via-transparent to-foreground/5 rounded-2xl blur-md" />
+                      <div className="relative text-center max-w-xs backdrop-blur-xl bg-gradient-to-br from-background/70 via-background/50 to-background/30 px-6 py-4 rounded-2xl border border-foreground/10 shadow-xl shadow-foreground/5 overflow-hidden">
+                        {/* Glass highlight */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-foreground/8 via-transparent to-transparent rounded-2xl" />
+                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
+                        <h3 className="relative text-lg md:text-xl font-semibold text-foreground">
+                          {item.title}
+                        </h3>
+                        <p className="relative text-muted-foreground text-sm mt-1">
+                          {item.institution}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
