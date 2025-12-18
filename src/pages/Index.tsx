@@ -17,6 +17,7 @@ const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,15 +29,38 @@ const Index = () => {
       const pageHeight = container.clientHeight;
       const newPage = Math.round(scrollTop / pageHeight);
       
+      // Calculate scroll progress (0 to 1 within each page transition)
+      const progress = (scrollTop % pageHeight) / pageHeight;
+      setScrollProgress(progress);
+      
       if (newPage !== currentPage) {
         setCurrentPage(newPage);
-        setAnimationKey(prev => prev + 1); // Trigger re-animation
+        setAnimationKey(prev => prev + 1);
       }
     };
 
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
   }, [currentPage]);
+
+  // Calculate opacity for each page based on scroll
+  const getPageOpacity = (pageIndex: number) => {
+    if (pageIndex === currentPage) {
+      // Fade out as we scroll away
+      const fadeOut = scrollProgress < 0.5 
+        ? 1 
+        : 1 - (scrollProgress - 0.5) * 2;
+      return Math.max(0.3, fadeOut);
+    }
+    if (pageIndex === currentPage + 1) {
+      // Fade in as we scroll towards
+      const fadeIn = scrollProgress > 0.5 
+        ? (scrollProgress - 0.5) * 2 
+        : 0;
+      return Math.max(0.3, fadeIn);
+    }
+    return 1;
+  };
 
   const scrollToPage = (page: number) => {
     const container = containerRef.current;
@@ -76,7 +100,10 @@ const Index = () => {
         className="h-full overflow-y-auto snap-smooth scrollbar-hide"
       >
         {/* Page 1 - Hero */}
-        <section className="h-dvh flex items-center justify-center snap-start">
+        <section 
+          className="h-dvh flex items-center justify-center snap-start transition-opacity duration-300"
+          style={{ opacity: getPageOpacity(0) }}
+        >
           <main className="relative z-10 flex flex-col items-center text-center px-6">
             {/* Profile Photo */}
             <div className="mb-8 animate-fade-in">
@@ -137,7 +164,10 @@ const Index = () => {
         </section>
 
         {/* Page 2 - Education */}
-        <section className="h-dvh flex items-center justify-center snap-start">
+        <section 
+          className="h-dvh flex items-center justify-center snap-start transition-opacity duration-300"
+          style={{ opacity: getPageOpacity(1) }}
+        >
           <div className="relative z-10 flex flex-col items-center px-6">
             <h2 
               key={`title-${animationKey}`}
