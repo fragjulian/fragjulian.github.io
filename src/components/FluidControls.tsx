@@ -1,4 +1,4 @@
-import { Sparkles, SparklesIcon } from 'lucide-react';
+import { Sparkles, Ban } from 'lucide-react';
 
 interface FluidControlsProps {
   enabled: boolean;
@@ -15,7 +15,7 @@ const FluidControls = ({ enabled, onToggle }: FluidControlsProps) => {
       {enabled ? (
         <Sparkles className="w-5 h-5 text-foreground" />
       ) : (
-        <SparklesIcon className="w-5 h-5 text-foreground/50" />
+        <Ban className="w-5 h-5 text-foreground/50" />
       )}
     </button>
   );

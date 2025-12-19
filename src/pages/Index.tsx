@@ -17,7 +17,6 @@ const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,10 +28,6 @@ const Index = () => {
       const pageHeight = container.clientHeight;
       const newPage = Math.round(scrollTop / pageHeight);
       
-      // Calculate scroll progress (0 to 1 within each page transition)
-      const progress = (scrollTop % pageHeight) / pageHeight;
-      setScrollProgress(progress);
-      
       if (newPage !== currentPage) {
         setCurrentPage(newPage);
         setAnimationKey(prev => prev + 1);
@@ -42,25 +37,6 @@ const Index = () => {
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
   }, [currentPage]);
-
-  // Calculate opacity for each page based on scroll
-  const getPageOpacity = (pageIndex: number) => {
-    if (pageIndex === currentPage) {
-      // Fade out as we scroll away
-      const fadeOut = scrollProgress < 0.5 
-        ? 1 
-        : 1 - (scrollProgress - 0.5) * 2;
-      return Math.max(0.3, fadeOut);
-    }
-    if (pageIndex === currentPage + 1) {
-      // Fade in as we scroll towards
-      const fadeIn = scrollProgress > 0.5 
-        ? (scrollProgress - 0.5) * 2 
-        : 0;
-      return Math.max(0.3, fadeIn);
-    }
-    return 1;
-  };
 
   const scrollToPage = (page: number) => {
     const container = containerRef.current;
@@ -101,8 +77,7 @@ const Index = () => {
       >
         {/* Page 1 - Hero */}
         <section 
-          className="h-dvh flex items-center justify-center snap-start transition-opacity duration-300"
-          style={{ opacity: getPageOpacity(0) }}
+          className="h-dvh flex items-center justify-center snap-start"
         >
           <main className="relative z-10 flex flex-col items-center text-center px-6">
             {/* Profile Photo */}
@@ -165,8 +140,7 @@ const Index = () => {
 
         {/* Page 2 - Education */}
         <section 
-          className="h-dvh flex items-center justify-center snap-start transition-opacity duration-300"
-          style={{ opacity: getPageOpacity(1) }}
+          className="h-dvh flex items-center justify-center snap-start"
         >
           <div className="relative z-10 flex flex-col items-center px-6">
             <h2 
@@ -190,26 +164,20 @@ const Index = () => {
                       <div className="absolute top-10 left-1/2 h-[calc(100%+1.5rem)] w-px bg-gradient-to-b from-foreground/20 to-foreground/10 -translate-x-1/2 -z-10" />
                     )}
                     
-                    {/* Year badge - liquid glass */}
-                    <div className="relative z-10 mb-3 group">
-                      <div className="absolute inset-0 bg-gradient-to-br from-foreground/10 via-transparent to-foreground/5 rounded-full blur-sm" />
-                      <div className="relative backdrop-blur-xl bg-gradient-to-br from-background/80 via-background/60 to-background/40 border border-foreground/15 px-5 py-2 rounded-full shadow-lg shadow-foreground/5 overflow-hidden">
-                        {/* Inner glass reflection */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-foreground/10 via-transparent to-transparent rounded-full" />
-                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/30 to-transparent" />
+                    {/* Year badge - subtle glass */}
+                    <div className="relative z-10 mb-3">
+                      <div className="relative backdrop-blur-md bg-background/70 border border-foreground/10 px-5 py-2 rounded-full shadow-sm overflow-hidden">
+                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
                         <span className="relative text-sm font-medium text-foreground/90">
                           {item.year}
                         </span>
                       </div>
                     </div>
                     
-                    {/* Content - liquid glass */}
-                    <div className="relative group">
-                      <div className="absolute -inset-1 bg-gradient-to-br from-foreground/10 via-transparent to-foreground/5 rounded-2xl blur-md" />
-                      <div className="relative text-center max-w-xs backdrop-blur-xl bg-gradient-to-br from-background/70 via-background/50 to-background/30 px-6 py-4 rounded-2xl border border-foreground/10 shadow-xl shadow-foreground/5 overflow-hidden">
-                        {/* Glass highlight */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-foreground/8 via-transparent to-transparent rounded-2xl" />
-                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
+                    {/* Content - subtle glass */}
+                    <div className="relative">
+                      <div className="relative text-center max-w-xs backdrop-blur-md bg-background/60 px-6 py-4 rounded-2xl border border-foreground/8 shadow-md overflow-hidden">
+                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
                         <h3 className="relative text-lg md:text-xl font-semibold text-foreground">
                           {item.title}
                         </h3>
