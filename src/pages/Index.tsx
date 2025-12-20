@@ -5,6 +5,7 @@ import type { FluidColorMode } from '@/components/FluidCursor';
 import ThemeToggle from '@/components/ThemeToggle';
 import CustomCursor from '@/components/CustomCursor';
 import FluidControls from '@/components/FluidControls';
+import LiquidGlass from '@/components/LiquidGlass';
 import profilePhoto from '@/assets/profile-photo.jpeg';
 
 const educationItems = [
@@ -152,6 +153,15 @@ const Index = () => {
             
             {/* Timeline - centered */}
             <div className="relative">
+              {/* Single continuous connecting line from first year center to last box center */}
+              <div 
+                className="absolute left-1/2 -translate-x-1/2 w-px bg-gradient-to-b from-foreground/20 via-foreground/15 to-foreground/20 -z-10"
+                style={{
+                  top: '1.25rem', // Center of first year badge
+                  bottom: '2rem', // Center of last content box
+                }}
+              />
+              
               <div className="flex flex-col gap-12">
                 {educationItems.map((item, index) => (
                   <div 
@@ -159,32 +169,29 @@ const Index = () => {
                     className="relative flex flex-col items-center animate-fade-in"
                     style={{ animationDelay: `${(index + 1) * 0.1}s` }}
                   >
-                    {/* Connecting line to next item */}
-                    {index < educationItems.length - 1 && (
-                      <div className="absolute top-10 left-1/2 h-[calc(100%+1.5rem)] w-px bg-gradient-to-b from-foreground/20 to-foreground/10 -translate-x-1/2 -z-10" />
-                    )}
-                    
-                    {/* Year badge - subtle glass */}
+                    {/* Year badge - liquid glass */}
                     <div className="relative z-10 mb-3">
-                      <div className="relative backdrop-blur-md bg-background/70 border border-foreground/10 px-5 py-2 rounded-full shadow-sm overflow-hidden">
-                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/15 to-transparent" />
-                        <span className="relative text-sm font-medium text-foreground/90">
-                          {item.year}
-                        </span>
-                      </div>
+                      <LiquidGlass rounded="full" className="shadow-md">
+                        <div className="px-5 py-2">
+                          <span className="text-sm font-medium text-foreground/90">
+                            {item.year}
+                          </span>
+                        </div>
+                      </LiquidGlass>
                     </div>
                     
-                    {/* Content - subtle glass */}
+                    {/* Content - liquid glass */}
                     <div className="relative">
-                      <div className="relative text-center max-w-xs backdrop-blur-md bg-background/60 px-6 py-4 rounded-2xl border border-foreground/8 shadow-md overflow-hidden">
-                        <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
-                        <h3 className="relative text-lg md:text-xl font-semibold text-foreground">
-                          {item.title}
-                        </h3>
-                        <p className="relative text-muted-foreground text-sm mt-1">
-                          {item.institution}
-                        </p>
-                      </div>
+                      <LiquidGlass rounded="lg" className="shadow-lg max-w-xs">
+                        <div className="text-center px-6 py-4">
+                          <h3 className="text-lg md:text-xl font-semibold text-foreground">
+                            {item.title}
+                          </h3>
+                          <p className="text-muted-foreground text-sm mt-1">
+                            {item.institution}
+                          </p>
+                        </div>
+                      </LiquidGlass>
                     </div>
                   </div>
                 ))}

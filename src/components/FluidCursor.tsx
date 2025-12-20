@@ -1113,11 +1113,19 @@ const FluidCursor = ({
       lastInteractionTime = Date.now();
       idleSplatTimer = 0;
       const touches = e.targetTouches;
-      const pointer = pointers[0];
+      
+      // Ensure we have enough pointers for multi-touch
+      while (pointers.length < touches.length) {
+        pointers.push(pointerPrototype());
+      }
+      
       for (let i = 0; i < touches.length; i++) {
+        const pointer = pointers[i];
         const posX = scaleByPixelRatio(touches[i].clientX);
         const posY = scaleByPixelRatio(touches[i].clientY);
         updatePointerDownData(pointer, touches[i].identifier, posX, posY);
+        // Create initial splat on touch start for immediate feedback
+        clickSplat(pointer);
       }
     };
 
@@ -1125,24 +1133,48 @@ const FluidCursor = ({
       lastInteractionTime = Date.now();
       idleSplatTimer = 0;
       const touches = e.targetTouches;
-      const pointer = pointers[0];
+      
       for (let i = 0; i < touches.length; i++) {
+        // Find the pointer with matching ID
+        let pointer = pointers.find(p => p.id === touches[i].identifier);
+        if (!pointer) {
+          pointer = pointers[Math.min(i, pointers.length - 1)];
+        }
+        
         const posX = scaleByPixelRatio(touches[i].clientX);
         const posY = scaleByPixelRatio(touches[i].clientY);
+        
+        // Calculate velocity for more responsive swipe animations
+        const prevX = pointer.texcoordX * canvas.width;
+        const prevY = (1 - pointer.texcoordY) * canvas.height;
+        const dx = posX - prevX;
+        const dy = posY - prevY;
+        const velocity = Math.sqrt(dx * dx + dy * dy);
+        
+        // Boost splat intensity based on swipe velocity
+        if (velocity > 5) {
+          pointer.color = generateColor();
+        }
+        
         updatePointerMoveData(pointer, posX, posY, pointer.color);
       }
     };
 
-    const handleTouchEnd = () => {
-      const pointer = pointers[0];
-      updatePointerUpData(pointer);
+    const handleTouchEnd = (e: TouchEvent) => {
+      const changedTouches = e.changedTouches;
+      for (let i = 0; i < changedTouches.length; i++) {
+        const pointer = pointers.find(p => p.id === changedTouches[i].identifier);
+        if (pointer) {
+          updatePointerUpData(pointer);
+        }
+      }
     };
 
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchstart', handleTouchStart, false);
-    window.addEventListener('touchmove', handleTouchMove, false);
-    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     // Start animation
     updateFrame();
