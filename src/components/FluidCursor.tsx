@@ -750,7 +750,7 @@ const FluidCursor = ({
     // Idle ambient animation state
     let lastInteractionTime = Date.now();
     let idleSplatTimer = 0;
-    let nextIdleInterval = 3 + Math.random() * 4; // Random 3-7 seconds
+    let nextIdleInterval = 1.5 + Math.random() * 2.5; // Random 1.5-4 seconds (more frequent)
     const IDLE_THRESHOLD = 2000; // Start ambient after 2 seconds of no interaction
     
     // Ambient movement state
