@@ -153,27 +153,15 @@ const Index = () => {
             
             {/* Timeline - centered */}
             <div className="relative">
-              <div className="flex flex-col gap-12">
+              <div className="flex flex-col gap-6">
                 {educationItems.map((item, index) => (
                   <div 
                     key={`${index}-${animationKey}`}
                     className="relative flex flex-col items-center animate-fade-in"
                     style={{ animationDelay: `${(index + 1) * 0.1}s` }}
                   >
-                    {/* Connecting line segment - between this item and next */}
-                    {index < educationItems.length - 1 && (
-                      <div 
-                        className="absolute left-1/2 -translate-x-1/2 w-px bg-foreground/15"
-                        style={{
-                          top: '50%',
-                          bottom: '-3rem',
-                          zIndex: 0,
-                        }}
-                      />
-                    )}
-                    
                     {/* Year badge - liquid glass */}
-                    <div className="relative z-10 mb-3">
+                    <div className="relative z-10 mb-2">
                       <LiquidGlass rounded="full" className="shadow-md">
                         <div className="px-5 py-2">
                           <span className="text-sm font-medium text-foreground/90">
@@ -183,9 +171,12 @@ const Index = () => {
                       </LiquidGlass>
                     </div>
                     
+                    {/* Connecting line segment - between year and content box */}
+                    <div className="w-px h-4 bg-foreground/20" />
+                    
                     {/* Content - liquid glass */}
                     <div className="relative z-10">
-                      <LiquidGlass rounded="lg" className="shadow-lg max-w-xs">
+                      <LiquidGlass rounded="lg" className="shadow-lg w-72">
                         <div className="text-center px-6 py-4">
                           <h3 className="text-lg md:text-xl font-semibold text-foreground">
                             {item.title}
@@ -196,6 +187,11 @@ const Index = () => {
                         </div>
                       </LiquidGlass>
                     </div>
+                    
+                    {/* Connecting line to next item */}
+                    {index < educationItems.length - 1 && (
+                      <div className="w-px h-6 bg-foreground/20 mt-0" />
+                    )}
                   </div>
                 ))}
               </div>
