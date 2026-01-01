@@ -10,8 +10,8 @@ import profilePhoto from '@/assets/profile-photo.jpeg';
 
 const educationItems = [
   { year: '2024', title: 'Master Informatics', institution: 'University of Klagenfurt' },
-  { year: '2022', title: 'Bachelor Software Engineering', institution: 'University of Applied Sciences Upper Austria' },
-  { year: '2019', title: 'Technical College for Informatics', institution: 'Linzer Technikum' },
+  { year: '2022', title: 'Bachelor Software Engineering', institution: ['University of Applied Sciences', 'Upper Austria'] },
+  { year: '2019', title: 'Technical College', institution: ['for Informatics', 'Linzer Technikum'] },
 ];
 
 const Index = () => {
@@ -141,19 +141,19 @@ const Index = () => {
 
         {/* Page 2 - Education */}
         <section 
-          className="h-dvh flex items-center justify-center snap-start"
+          className="h-dvh flex items-center justify-center snap-start py-8 md:py-0"
         >
-          <div className="relative z-10 flex flex-col items-center px-6">
+          <div className="relative z-10 flex flex-col items-center px-4 md:px-6 max-h-full overflow-visible">
             <h2 
               key={`title-${animationKey}`}
-              className="text-3xl md:text-4xl font-bold text-foreground mb-16 animate-fade-in"
+              className="text-2xl md:text-4xl font-bold text-foreground mb-6 md:mb-12 animate-fade-in shrink-0"
             >
               Education
             </h2>
             
             {/* Timeline - centered */}
             <div className="relative">
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-0">
                 {educationItems.map((item, index) => (
                   <div 
                     key={`${index}-${animationKey}`}
@@ -161,10 +161,10 @@ const Index = () => {
                     style={{ animationDelay: `${(index + 1) * 0.1}s` }}
                   >
                     {/* Year badge - liquid glass */}
-                    <div className="relative z-10 mb-2">
+                    <div className="relative z-10">
                       <LiquidGlass rounded="full" className="shadow-md">
-                        <div className="px-5 py-2">
-                          <span className="text-sm font-medium text-foreground/90">
+                        <div className="px-4 py-1.5 md:px-5 md:py-2">
+                          <span className="text-xs md:text-sm font-medium text-foreground/90">
                             {item.year}
                           </span>
                         </div>
@@ -172,17 +172,25 @@ const Index = () => {
                     </div>
                     
                     {/* Connecting line segment - between year and content box */}
-                    <div className="w-px h-4 bg-foreground/20" />
+                    <div className="w-px h-3 md:h-4 bg-foreground/20" />
                     
                     {/* Content - liquid glass */}
                     <div className="relative z-10">
-                      <LiquidGlass rounded="lg" className="shadow-lg w-72">
-                        <div className="text-center px-6 py-4">
-                          <h3 className="text-lg md:text-xl font-semibold text-foreground">
+                      <LiquidGlass rounded="lg" className="shadow-lg w-64 md:w-72">
+                        <div className="text-center px-4 py-3 md:px-6 md:py-4">
+                          <h3 className="text-base md:text-lg font-semibold text-foreground">
                             {item.title}
                           </h3>
-                          <p className="text-muted-foreground text-sm mt-1">
-                            {item.institution}
+                          <p className="text-muted-foreground text-xs md:text-sm mt-1">
+                            {Array.isArray(item.institution) ? (
+                              <>
+                                {item.institution[0]}
+                                <br />
+                                {item.institution[1]}
+                              </>
+                            ) : (
+                              item.institution
+                            )}
                           </p>
                         </div>
                       </LiquidGlass>
@@ -190,7 +198,7 @@ const Index = () => {
                     
                     {/* Connecting line to next item */}
                     {index < educationItems.length - 1 && (
-                      <div className="w-px h-6 bg-foreground/20 mt-0" />
+                      <div className="w-px h-4 md:h-6 bg-foreground/20" />
                     )}
                   </div>
                 ))}
