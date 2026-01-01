@@ -19,17 +19,17 @@ const LiquidGlass = ({ children, className = '', rounded = 'lg' }: LiquidGlassPr
       {/* SVG Filter Definition */}
       <svg className="absolute w-0 h-0" aria-hidden="true">
         <defs>
-          <filter id="lg-distortion" x="-20%" y="-20%" width="140%" height="140%">
+          <filter id="lg-distortion" x="-30%" y="-30%" width="160%" height="160%">
             <feTurbulence 
               type="fractalNoise" 
-              baseFrequency="0.015" 
-              numOctaves="3" 
+              baseFrequency="0.025" 
+              numOctaves="4" 
               result="noise" 
             />
             <feDisplacementMap 
               in="SourceGraphic" 
               in2="noise" 
-              scale="8" 
+              scale="18" 
               xChannelSelector="R" 
               yChannelSelector="G" 
             />

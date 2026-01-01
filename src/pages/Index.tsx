@@ -9,9 +9,9 @@ import LiquidGlass from '@/components/LiquidGlass';
 import profilePhoto from '@/assets/profile-photo.jpeg';
 
 const educationItems = [
-  { year: '2020', title: 'Master of Science', institution: 'University Name' },
-  { year: '2018', title: 'Bachelor of Science', institution: 'University Name' },
-  { year: '2015', title: 'High School Diploma', institution: 'School Name' },
+  { year: '2024', title: 'Master Informatics', institution: 'University of Klagenfurt' },
+  { year: '2022', title: 'Bachelor Software Engineering', institution: 'University of Applied Sciences Upper Austria' },
+  { year: '2019', title: 'Technical College for Informatics', institution: 'Linzer Technikum' },
 ];
 
 const Index = () => {
@@ -153,15 +153,6 @@ const Index = () => {
             
             {/* Timeline - centered */}
             <div className="relative">
-              {/* Single continuous connecting line from first year center to last box center */}
-              <div 
-                className="absolute left-1/2 -translate-x-1/2 w-px bg-gradient-to-b from-foreground/20 via-foreground/15 to-foreground/20 -z-10"
-                style={{
-                  top: '1.25rem', // Center of first year badge
-                  bottom: '2rem', // Center of last content box
-                }}
-              />
-              
               <div className="flex flex-col gap-12">
                 {educationItems.map((item, index) => (
                   <div 
@@ -169,6 +160,18 @@ const Index = () => {
                     className="relative flex flex-col items-center animate-fade-in"
                     style={{ animationDelay: `${(index + 1) * 0.1}s` }}
                   >
+                    {/* Connecting line segment - between this item and next */}
+                    {index < educationItems.length - 1 && (
+                      <div 
+                        className="absolute left-1/2 -translate-x-1/2 w-px bg-foreground/15"
+                        style={{
+                          top: '50%',
+                          bottom: '-3rem',
+                          zIndex: 0,
+                        }}
+                      />
+                    )}
+                    
                     {/* Year badge - liquid glass */}
                     <div className="relative z-10 mb-3">
                       <LiquidGlass rounded="full" className="shadow-md">
@@ -181,7 +184,7 @@ const Index = () => {
                     </div>
                     
                     {/* Content - liquid glass */}
-                    <div className="relative">
+                    <div className="relative z-10">
                       <LiquidGlass rounded="lg" className="shadow-lg max-w-xs">
                         <div className="text-center px-6 py-4">
                           <h3 className="text-lg md:text-xl font-semibold text-foreground">
