@@ -14,6 +14,12 @@ const educationItems = [
   { year: '2019', title: 'Technical College', institution: ['for Informatics', 'Linzer Technikum'] },
 ];
 
+const workExperienceItems = [
+  { year: 'since 2019', title: 'Software Engineer', institution: 'Dynatrace' },
+  { year: '2022-2024', title: 'Tutor', institution: ['Semistructured Data Models &', 'Advanced Software Engineering'] },
+  { year: '2016-2019', title: 'Various Internships', institution: '' },
+];
+
 const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -57,7 +63,7 @@ const Index = () => {
       
       {/* Page indicators */}
       <div className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 md:gap-3">
-        {[0, 1].map((page) => (
+        {[0, 1, 2].map((page) => (
           <button
             key={page}
             onClick={() => scrollToPage(page)}
@@ -145,7 +151,7 @@ const Index = () => {
         >
           <div className="relative z-10 flex flex-col items-center px-4 md:px-6 max-h-full overflow-visible">
             <h2 
-              key={`title-${animationKey}`}
+              key={`title-edu-${animationKey}`}
               className="text-2xl md:text-4xl font-bold text-foreground mb-6 md:mb-12 animate-fade-in shrink-0"
             >
               Education
@@ -156,7 +162,7 @@ const Index = () => {
               <div className="flex flex-col gap-0">
                 {educationItems.map((item, index) => (
                   <div 
-                    key={`${index}-${animationKey}`}
+                    key={`edu-${index}-${animationKey}`}
                     className="relative flex flex-col items-center animate-fade-in"
                     style={{ animationDelay: `${(index + 1) * 0.1}s` }}
                   >
@@ -198,6 +204,76 @@ const Index = () => {
                     
                     {/* Connecting line to next item */}
                     {index < educationItems.length - 1 && (
+                      <div className="w-px h-4 md:h-6 bg-foreground/20" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Page 3 - Work Experience */}
+        <section 
+          className="h-dvh flex items-center justify-center snap-start py-8 md:py-0"
+        >
+          <div className="relative z-10 flex flex-col items-center px-4 md:px-6 max-h-full overflow-visible">
+            <h2 
+              key={`title-work-${animationKey}`}
+              className="text-2xl md:text-4xl font-bold text-foreground mb-6 md:mb-12 animate-fade-in shrink-0"
+            >
+              Work Experience
+            </h2>
+            
+            {/* Timeline - centered */}
+            <div className="relative">
+              <div className="flex flex-col gap-0">
+                {workExperienceItems.map((item, index) => (
+                  <div 
+                    key={`work-${index}-${animationKey}`}
+                    className="relative flex flex-col items-center animate-fade-in"
+                    style={{ animationDelay: `${(index + 1) * 0.1}s` }}
+                  >
+                    {/* Year badge - liquid glass */}
+                    <div className="relative z-10">
+                      <LiquidGlass rounded="full" className="shadow-md">
+                        <div className="px-4 py-1.5 md:px-5 md:py-2">
+                          <span className="text-xs md:text-sm font-medium text-foreground/90">
+                            {item.year}
+                          </span>
+                        </div>
+                      </LiquidGlass>
+                    </div>
+                    
+                    {/* Connecting line segment - between year and content box */}
+                    <div className="w-px h-3 md:h-4 bg-foreground/20" />
+                    
+                    {/* Content - liquid glass */}
+                    <div className="relative z-10">
+                      <LiquidGlass rounded="lg" className="shadow-lg w-64 md:w-72">
+                        <div className="text-center px-4 py-3 md:px-6 md:py-4">
+                          <h3 className="text-base md:text-lg font-semibold text-foreground">
+                            {item.title}
+                          </h3>
+                          {item.institution && (
+                            <p className="text-muted-foreground text-xs md:text-sm mt-1">
+                              {Array.isArray(item.institution) ? (
+                                <>
+                                  {item.institution[0]}
+                                  <br />
+                                  {item.institution[1]}
+                                </>
+                              ) : (
+                                item.institution
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      </LiquidGlass>
+                    </div>
+                    
+                    {/* Connecting line to next item */}
+                    {index < workExperienceItems.length - 1 && (
                       <div className="w-px h-4 md:h-6 bg-foreground/20" />
                     )}
                   </div>

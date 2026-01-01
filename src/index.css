@@ -109,19 +109,19 @@ All colors MUST be HSL.
     cursor: none;
   }
 
-  /* Allow text selection only on desktop */
+  /* Disable text selection on desktop for cleaner interaction */
   @media (pointer: fine) {
-    * {
-      user-select: auto;
-    }
-  }
-
-  /* Disable text selection on touch devices to allow fluid swipe over text */
-  @media (pointer: coarse) {
     * {
       user-select: none;
       -webkit-user-select: none;
-      -webkit-touch-callout: none;
+    }
+  }
+
+  /* Allow text selection on touch devices */
+  @media (pointer: coarse) {
+    * {
+      user-select: auto;
+      -webkit-user-select: auto;
     }
   }
 }
