@@ -1194,8 +1194,8 @@ const FluidCursor = ({
   }
 
   return (
-    <div className={cn('pointer-events-none fixed inset-0 z-0', className)}>
-      <canvas ref={canvasRef} className="block h-screen w-screen" />
+    <div className={cn('pointer-events-none fixed inset-0 z-0 touch-none', className)} style={{ touchAction: 'none' }}>
+      <canvas ref={canvasRef} className="block h-screen w-screen touch-none" style={{ touchAction: 'none' }} />
     </div>
   );
 };
