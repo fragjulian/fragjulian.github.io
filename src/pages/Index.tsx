@@ -7,7 +7,7 @@ import CustomCursor from '@/components/CustomCursor';
 import FluidControls from '@/components/FluidControls';
 import LiquidGlass from '@/components/LiquidGlass';
 import profilePhoto from '@/assets/profile-photo.jpeg';
-import pixelRocket from '@/assets/pixel-rocket.png';
+import rocket from '@/assets/rocket.png';
 
 const educationItems = [
   { year: '2024', title: 'Master Informatics', institution: 'University of Klagenfurt' },
@@ -286,36 +286,17 @@ const Index = () => {
 
         {/* Page 4 - Space Canvas */}
         <section 
-          className="h-dvh flex flex-col snap-start relative overflow-hidden"
+          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars"
           style={{ background: 'linear-gradient(to bottom, #0a0a1a 0%, #1a1a3a 50%, #2a1a4a 100%)' }}
         >
-          {/* Sparkling stars */}
-          <div className="absolute inset-0 overflow-hidden">
-            {Array.from({ length: 80 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full bg-white animate-pulse"
-                style={{
-                  width: `${Math.random() * 3 + 1}px`,
-                  height: `${Math.random() * 3 + 1}px`,
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 70}%`,
-                  opacity: Math.random() * 0.8 + 0.2,
-                  animationDelay: `${Math.random() * 3}s`,
-                  animationDuration: `${Math.random() * 2 + 1}s`,
-                }}
-              />
-            ))}
-          </div>
-          
-          {/* 8-bit Pixel Rocket in center */}
+          {/* Rocket in center - rotated upward */}
           <div className="flex-1 relative z-10 flex items-center justify-center">
             <img
               key={`rocket-${animationKey}`}
-              src={pixelRocket}
-              alt="8-bit pixel rocket"
+              src={rocket}
+              alt="Rocket"
               className="h-48 md:h-64 animate-fade-in drop-shadow-[0_0_30px_rgba(255,100,50,0.5)]"
-              style={{ imageRendering: 'pixelated' }}
+              style={{ transform: 'rotate(-45deg)' }}
             />
           </div>
         </section>
