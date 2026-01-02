@@ -7,6 +7,8 @@ import CustomCursor from '@/components/CustomCursor';
 import FluidControls from '@/components/FluidControls';
 import LiquidGlass from '@/components/LiquidGlass';
 import profilePhoto from '@/assets/profile-photo.jpeg';
+import planetHorizon from '@/assets/planet-horizon.png';
+import astronaut from '@/assets/astronaut.png';
 
 const educationItems = [
   { year: '2024', title: 'Master Informatics', institution: 'University of Klagenfurt' },
@@ -63,7 +65,7 @@ const Index = () => {
       
       {/* Page indicators */}
       <div className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 md:gap-3">
-        {[0, 1, 2].map((page) => (
+        {[0, 1, 2, 3].map((page) => (
           <button
             key={page}
             onClick={() => scrollToPage(page)}
@@ -280,6 +282,59 @@ const Index = () => {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Page 4 - Space Canvas */}
+        <section 
+          className="h-dvh flex flex-col snap-start relative overflow-hidden"
+          style={{ background: 'linear-gradient(to bottom, #0a0a1a 0%, #1a1a3a 50%, #2a1a4a 100%)' }}
+        >
+          {/* Sparkling stars */}
+          <div className="absolute inset-0 overflow-hidden">
+            {Array.from({ length: 80 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full bg-white animate-pulse"
+                style={{
+                  width: `${Math.random() * 3 + 1}px`,
+                  height: `${Math.random() * 3 + 1}px`,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 70}%`,
+                  opacity: Math.random() * 0.8 + 0.2,
+                  animationDelay: `${Math.random() * 3}s`,
+                  animationDuration: `${Math.random() * 2 + 1}s`,
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* Main content area - canvas for fluid play */}
+          <div className="flex-1 relative z-10 flex items-center justify-center">
+            <p 
+              key={`space-title-${animationKey}`}
+              className="text-white/30 text-lg md:text-xl font-light tracking-widest animate-fade-in"
+            >
+              ✨ explore the cosmos ✨
+            </p>
+          </div>
+          
+          {/* Planet horizon footer */}
+          <div className="relative h-48 md:h-64 w-full">
+            {/* Astronaut */}
+            <img
+              src={astronaut}
+              alt="Astronaut gazing at space"
+              className="absolute bottom-24 md:bottom-32 left-1/4 md:left-1/3 h-24 md:h-40 z-20 animate-fade-in drop-shadow-2xl"
+              style={{ animationDelay: '0.3s' }}
+            />
+            
+            {/* Planet horizon image */}
+            <img
+              src={planetHorizon}
+              alt="Alien planet horizon"
+              className="absolute bottom-0 left-0 w-full h-48 md:h-64 object-cover object-top"
+            />
           </div>
         </section>
       </div>
