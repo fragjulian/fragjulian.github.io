@@ -7,8 +7,7 @@ import CustomCursor from '@/components/CustomCursor';
 import FluidControls from '@/components/FluidControls';
 import LiquidGlass from '@/components/LiquidGlass';
 import profilePhoto from '@/assets/profile-photo.jpeg';
-import planetHorizon from '@/assets/planet-horizon.png';
-import astronaut from '@/assets/astronaut.png';
+import pixelRocket from '@/assets/pixel-rocket.png';
 
 const educationItems = [
   { year: '2024', title: 'Master Informatics', institution: 'University of Klagenfurt' },
@@ -309,31 +308,14 @@ const Index = () => {
             ))}
           </div>
           
-          {/* Main content area - canvas for fluid play */}
+          {/* 8-bit Pixel Rocket in center */}
           <div className="flex-1 relative z-10 flex items-center justify-center">
-            <p 
-              key={`space-title-${animationKey}`}
-              className="text-white/30 text-lg md:text-xl font-light tracking-widest animate-fade-in"
-            >
-              ✨ explore the cosmos ✨
-            </p>
-          </div>
-          
-          {/* Planet horizon footer */}
-          <div className="relative h-48 md:h-64 w-full">
-            {/* Astronaut */}
             <img
-              src={astronaut}
-              alt="Astronaut gazing at space"
-              className="absolute bottom-24 md:bottom-32 left-1/4 md:left-1/3 h-24 md:h-40 z-20 animate-fade-in drop-shadow-2xl"
-              style={{ animationDelay: '0.3s' }}
-            />
-            
-            {/* Planet horizon image */}
-            <img
-              src={planetHorizon}
-              alt="Alien planet horizon"
-              className="absolute bottom-0 left-0 w-full h-48 md:h-64 object-cover object-top"
+              key={`rocket-${animationKey}`}
+              src={pixelRocket}
+              alt="8-bit pixel rocket"
+              className="h-48 md:h-64 animate-fade-in drop-shadow-[0_0_30px_rgba(255,100,50,0.5)]"
+              style={{ imageRendering: 'pixelated' }}
             />
           </div>
         </section>
