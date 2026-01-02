@@ -287,7 +287,6 @@ const Index = () => {
         {/* Page 4 - Space Canvas */}
         <section 
           className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars"
-          style={{ background: 'linear-gradient(to bottom, #0a0a1a 0%, #1a1a3a 50%, #2a1a4a 100%)' }}
         >
           {/* Rocket in center - rotated upward */}
           <div className="flex-1 relative z-10 flex items-center justify-center">
@@ -295,7 +294,7 @@ const Index = () => {
               key={`rocket-${animationKey}`}
               src={rocket}
               alt="Rocket"
-              className="h-48 md:h-64 animate-fade-in drop-shadow-[0_0_30px_rgba(255,100,50,0.5)]"
+              className="h-16 md:h-24 animate-fade-in"
               style={{ transform: 'rotate(-45deg)' }}
             />
           </div>

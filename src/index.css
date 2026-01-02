@@ -168,6 +168,7 @@ All colors MUST be HSL.
 
 /* CSS Stars for space page */
 .space-stars {
+  background-color: #0a0a1a;
   background-image: 
     radial-gradient(2px 2px at 10% 10%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 20% 25%, white 50%, transparent 50%),
