@@ -58,7 +58,7 @@ const Index = () => {
   return (
     <div className="relative h-dvh overflow-hidden bg-background">
       <FluidCursor colorMode={fluidEnabled ? 'enabled' : 'disabled'} />
-      <ThemeToggle />
+      {currentPage !== 3 && <ThemeToggle />}
       <CustomCursor />
       <FluidControls enabled={fluidEnabled} onToggle={() => setFluidEnabled(!fluidEnabled)} />
       
@@ -288,14 +288,13 @@ const Index = () => {
         <section 
           className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars"
         >
-          {/* Rocket in center - rotated upward */}
+          {/* Rocket in center - rotated upward with floating animation */}
           <div className="flex-1 relative z-10 flex items-center justify-center">
             <img
               key={`rocket-${animationKey}`}
               src={rocket}
               alt="Rocket"
-              className="h-16 md:h-24 animate-fade-in"
-              style={{ transform: 'rotate(-45deg)' }}
+              className="h-16 md:h-24 rocket-animate"
             />
           </div>
         </section>
