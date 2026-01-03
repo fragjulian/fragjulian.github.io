@@ -291,7 +291,7 @@ const Index = () => {
           {/* Quote in top left */}
           <div className="absolute top-8 left-8 md:top-16 md:left-16 z-20 max-w-xs md:max-w-sm">
             <p className="text-gray-400 text-xs md:text-sm uppercase tracking-[0.3em] font-space leading-relaxed">
-              Stay curious, never stop learning.
+              Stay curious.<br />Never stop learning.
             </p>
           </div>
           
