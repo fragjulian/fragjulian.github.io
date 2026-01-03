@@ -168,77 +168,91 @@ All colors MUST be HSL.
 
 /* CSS Stars for space page */
 .space-stars {
-  background-color: hsl(240 50% 5%);
+  background-color: transparent;
   position: relative;
 }
 
-/* Twinkling stars layer */
+/* Dark overlay behind stars but allowing fluid to show through */
+.space-stars .stars-bg {
+  position: absolute;
+  inset: 0;
+  background-color: hsl(240 50% 5% / 0.85);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Twinkling stars layer - doubled height for seamless loop */
 .space-stars::before,
 .space-stars::after {
   content: '';
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  height: 200%;
   pointer-events: none;
+  z-index: 1;
 }
 
 .space-stars::before {
+  top: 0;
   background-image: 
-    radial-gradient(2px 2px at 10% 10%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 20% 25%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 30% 5%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 40% 35%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 50% 15%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 60% 45%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 70% 20%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 80% 55%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 90% 30%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 15% 60%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 25% 70%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 35% 50%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 45% 75%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 55% 40%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 65% 65%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 75% 30%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 85% 80%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 95% 50%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 5% 85%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 12% 40%, white 50%, transparent 50%);
-  animation: twinkle 4s ease-in-out infinite, stars-move 20s linear infinite;
+    radial-gradient(2px 2px at 10% 5%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 20% 12%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 30% 2%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 40% 17%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 50% 7%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 60% 22%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 70% 10%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 80% 27%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 90% 15%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 15% 30%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 25% 35%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 35% 25%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 45% 37%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 55% 20%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 65% 32%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 75% 15%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 85% 40%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 95% 25%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 5% 42%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 12% 20%, white 50%, transparent 50%);
+  animation: twinkle 4s ease-in-out infinite, stars-fall 15s linear infinite;
 }
 
 .space-stars::after {
+  top: 0;
   background-image: 
-    radial-gradient(1px 1px at 22% 90%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 32% 15%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 42% 55%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 52% 85%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 62% 25%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 72% 70%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 82% 10%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 92% 65%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 8% 95%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 18% 75%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 28% 35%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 38% 88%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 48% 22%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 58% 78%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 68% 8%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 78% 92%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 88% 42%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 98% 18%, white 50%, transparent 50%),
-    radial-gradient(1px 1px at 3% 58%, white 50%, transparent 50%),
-    radial-gradient(2px 2px at 13% 82%, white 50%, transparent 50%);
-  animation: twinkle 3s ease-in-out infinite 1.5s, stars-move 25s linear infinite;
+    radial-gradient(1px 1px at 22% 45%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 32% 7%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 42% 27%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 52% 42%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 62% 12%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 72% 35%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 82% 5%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 92% 32%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 8% 47%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 18% 37%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 28% 17%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 38% 44%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 48% 11%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 58% 39%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 68% 4%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 78% 46%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 88% 21%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 98% 9%, white 50%, transparent 50%),
+    radial-gradient(1px 1px at 3% 29%, white 50%, transparent 50%),
+    radial-gradient(2px 2px at 13% 41%, white 50%, transparent 50%);
+  animation: twinkle 3s ease-in-out infinite 1.5s, stars-fall 20s linear infinite;
 }
 
 @keyframes twinkle {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.4; }
 }
 
-@keyframes stars-move {
-  0% { transform: translateY(-10%); }
-  100% { transform: translateY(10%); }
+@keyframes stars-fall {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(50%); }
 }
 
 /* Rocket floating animation */

@@ -288,6 +288,9 @@ const Index = () => {
         <section 
           className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars"
         >
+          {/* Dark background overlay - allows fluid to show through */}
+          <div className="stars-bg" />
+          
           {/* Rocket in center - rotated upward with floating animation */}
           <div className="flex-1 relative z-10 flex items-center justify-center">
             <img
