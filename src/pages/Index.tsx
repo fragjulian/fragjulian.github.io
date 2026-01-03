@@ -286,10 +286,14 @@ const Index = () => {
 
         {/* Page 4 - Space Canvas */}
         <section 
-          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars"
+          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars dark"
         >
-          {/* Dark background overlay - allows fluid to show through */}
-          <div className="stars-bg" />
+          {/* Quote in top left */}
+          <div className="absolute top-8 left-8 md:top-16 md:left-16 z-20 max-w-xs md:max-w-sm">
+            <p className="text-gray-400 text-xs md:text-sm uppercase tracking-[0.3em] font-space leading-relaxed">
+              Stay curious, never stop learning.
+            </p>
+          </div>
           
           {/* Rocket in center - rotated upward with floating animation */}
           <div className="flex-1 relative z-10 flex items-center justify-center">
