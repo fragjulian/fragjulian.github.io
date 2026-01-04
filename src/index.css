@@ -174,20 +174,22 @@ All colors MUST be HSL.
   position: relative;
 }
 
-/* Stars layers - continuous falling animation */
+/* Stars layers - seamless continuous falling animation */
 .space-stars::before,
 .space-stars::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: -100%;
-  height: 200%;
+  height: 100%;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
+  background-size: 100% 50%;
+  background-repeat: repeat-y;
 }
 
 .space-stars::before {
+  top: 0;
   background-image: 
     radial-gradient(2px 2px at 10% 5%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 20% 12%, white 50%, transparent 50%),
@@ -209,10 +211,11 @@ All colors MUST be HSL.
     radial-gradient(2px 2px at 95% 25%, white 50%, transparent 50%),
     radial-gradient(1px 1px at 5% 42%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 12% 20%, white 50%, transparent 50%);
-  animation: stars-flow 12s linear infinite;
+  animation: stars-flow 8s linear infinite;
 }
 
 .space-stars::after {
+  top: 0;
   background-image: 
     radial-gradient(1px 1px at 22% 45%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 32% 7%, white 50%, transparent 50%),
@@ -234,12 +237,12 @@ All colors MUST be HSL.
     radial-gradient(2px 2px at 98% 9%, white 50%, transparent 50%),
     radial-gradient(1px 1px at 3% 29%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 13% 41%, white 50%, transparent 50%);
-  animation: stars-flow 18s linear infinite;
+  animation: stars-flow 12s linear infinite;
 }
 
 @keyframes stars-flow {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(100%); }
+  0% { background-position-y: 0; }
+  100% { background-position-y: 50%; }
 }
 
 /* Rocket floating animation */
