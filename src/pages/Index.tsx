@@ -284,9 +284,14 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Page 4 - Space Canvas */}
+        {/* Page 4 - Space Canvas - forced dark mode */}
         <section 
-          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars bg-[hsl(222.2,84%,4.9%)]"
+          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars dark"
+          style={{
+            '--background': '222.2 84% 4.9%',
+            '--foreground': '210 40% 98%',
+            backgroundColor: 'hsl(222.2, 84%, 4.9%)',
+          } as React.CSSProperties}
         >
           {/* Quote in top left */}
           <div className="absolute top-8 left-8 md:top-16 md:left-16 z-20 max-w-xs md:max-w-sm">
@@ -297,12 +302,18 @@ const Index = () => {
           
           {/* Rocket in center - rotated upward with floating animation */}
           <div className="flex-1 relative z-10 flex items-center justify-center">
-            <img
-              key={`rocket-${animationKey}`}
-              src={rocket}
-              alt="Rocket"
-              className="h-16 md:h-24 rocket-animate"
-            />
+            <button
+              onClick={() => scrollToPage(0)}
+              className="focus:outline-none"
+              aria-label="Scroll to top"
+            >
+              <img
+                key={`rocket-${animationKey}`}
+                src={rocket}
+                alt="Rocket"
+                className="h-16 md:h-24 rocket-animate hover:scale-110 transition-transform"
+              />
+            </button>
           </div>
         </section>
       </div>
