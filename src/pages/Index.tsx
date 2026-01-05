@@ -26,6 +26,25 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const userThemeRef = useRef<string | null>(null);
+
+  // Handle theme switching for page 4
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    if (currentPage === 3) {
+      // Save user's current theme preference before forcing dark
+      userThemeRef.current = localStorage.getItem('theme') || (root.classList.contains('dark') ? 'dark' : 'light');
+      root.classList.add('dark');
+    } else if (userThemeRef.current !== null) {
+      // Restore user's theme preference when leaving page 4
+      if (userThemeRef.current === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    }
+  }, [currentPage]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -284,14 +303,9 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Page 4 - Space Canvas - forced dark mode */}
+        {/* Page 4 - Space Canvas */}
         <section 
-          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars dark"
-          style={{
-            '--background': '222.2 84% 4.9%',
-            '--foreground': '210 40% 98%',
-            backgroundColor: 'hsl(222.2, 84%, 4.9%)',
-          } as React.CSSProperties}
+          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars"
         >
           {/* Quote in top left */}
           <div className="absolute top-8 left-8 md:top-16 md:left-16 z-20 max-w-xs md:max-w-sm">
