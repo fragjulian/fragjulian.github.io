@@ -27,6 +27,7 @@ const Index = () => {
   const [animationKey, setAnimationKey] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const userThemeRef = useRef<string | null>(null);
+  const wasOnSpacePageRef = useRef(false);
 
   // Handle theme switching for page 4
   useEffect(() => {
@@ -34,15 +35,19 @@ const Index = () => {
     
     if (currentPage === 3) {
       // Save user's current theme preference before forcing dark
-      userThemeRef.current = localStorage.getItem('theme') || (root.classList.contains('dark') ? 'dark' : 'light');
+      if (!wasOnSpacePageRef.current) {
+        userThemeRef.current = localStorage.getItem('theme') || (root.classList.contains('dark') ? 'dark' : 'light');
+      }
       root.classList.add('dark');
-    } else if (userThemeRef.current !== null) {
-      // Restore user's theme preference when leaving page 4
+      wasOnSpacePageRef.current = true;
+    } else if (wasOnSpacePageRef.current && userThemeRef.current !== null) {
+      // Restore user's theme preference only when leaving page 4
       if (userThemeRef.current === 'dark') {
         root.classList.add('dark');
       } else {
         root.classList.remove('dark');
       }
+      wasOnSpacePageRef.current = false;
     }
   }, [currentPage]);
 
