@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Linkedin, Mail } from 'lucide-react';
 import FluidCursor from '@/components/FluidCursor';
 import type { FluidColorMode } from '@/components/FluidCursor';
@@ -6,9 +6,12 @@ import ThemeToggle from '@/components/ThemeToggle';
 import CustomCursor from '@/components/CustomCursor';
 import FluidControls from '@/components/FluidControls';
 import LiquidGlass from '@/components/LiquidGlass';
+import PixelPet from '@/components/PixelPet';
 import profilePhoto from '@/assets/profile-photo.jpeg';
 import rocket from '@/assets/rocket.png';
 
+type Section = 'hero' | 'education' | 'work' | 'space';
+const sectionMap: Section[] = ['hero', 'education', 'work', 'space'];
 const educationItems = [
   { year: '2024', title: 'Master Informatics', institution: 'University of Klagenfurt' },
   { year: '2022', title: 'Bachelor Software Engineering', institution: ['University of Applied Sciences', 'Upper Austria'] },
@@ -26,6 +29,7 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
+  const [petActive, setPetActive] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const userThemeRef = useRef<string | null>(null);
   const wasOnSpacePageRef = useRef(false);
@@ -42,6 +46,12 @@ const Index = () => {
     checkDevTools();
     window.addEventListener('resize', checkDevTools);
     return () => window.removeEventListener('resize', checkDevTools);
+  }, []);
+
+  // Disable fluid when pet appears
+  const handlePetAppear = useCallback(() => {
+    setPetActive(true);
+    setFluidEnabled(false);
   }, []);
 
   // Handle theme switching for page 4
@@ -96,10 +106,21 @@ const Index = () => {
 
   return (
     <div className="relative h-dvh overflow-hidden bg-background">
-      <FluidCursor colorMode={fluidEnabled ? 'enabled' : 'disabled'} />
+      <FluidCursor colorMode={(fluidEnabled && !petActive) ? 'enabled' : 'disabled'} />
       {currentPage !== 3 && <ThemeToggle />}
       <CustomCursor />
-      <FluidControls enabled={fluidEnabled} onToggle={() => setFluidEnabled(!fluidEnabled)} />
+      <FluidControls 
+        enabled={fluidEnabled && !petActive} 
+        onToggle={() => !petActive && setFluidEnabled(!fluidEnabled)} 
+      />
+      
+      {/* Pixel Pet Easter Egg */}
+      {devToolsOpen && (
+        <PixelPet 
+          currentSection={sectionMap[currentPage]} 
+          onAppear={handlePetAppear} 
+        />
+      )}
       
       {/* Page indicators */}
       <div className="fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 md:gap-3">
@@ -128,7 +149,7 @@ const Index = () => {
         >
           <main className="relative z-10 flex flex-col items-center text-center px-6">
             {/* Profile Photo */}
-            <div className="mb-8 animate-fade-in relative">
+            <div className="mb-8 animate-fade-in">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-foreground/30 overflow-hidden shadow-2xl backdrop-blur-sm">
                 <img
                   src={profilePhoto}
@@ -136,20 +157,6 @@ const Index = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
-              {/* Dev tools thinking bubble */}
-              {devToolsOpen && (
-                <div className="absolute -top-2 -right-28 md:-right-32 animate-fade-in">
-                  <div className="relative bg-foreground text-background px-3 py-2 rounded-xl text-xs md:text-sm font-medium shadow-lg">
-                    Oh. You're <em>that</em> kind of user.
-                    {/* Bubble tail */}
-                    <div className="absolute left-0 bottom-2 -translate-x-full">
-                      <div className="w-2 h-2 bg-foreground rounded-full" />
-                      <div className="w-1.5 h-1.5 bg-foreground rounded-full -ml-1 mt-0.5" />
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Text Content */}
