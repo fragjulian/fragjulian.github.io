@@ -25,9 +25,24 @@ const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
+  const [devToolsOpen, setDevToolsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const userThemeRef = useRef<string | null>(null);
   const wasOnSpacePageRef = useRef(false);
+
+  // Detect dev tools open
+  useEffect(() => {
+    const threshold = 160;
+    const checkDevTools = () => {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+      setDevToolsOpen(widthThreshold || heightThreshold);
+    };
+    
+    checkDevTools();
+    window.addEventListener('resize', checkDevTools);
+    return () => window.removeEventListener('resize', checkDevTools);
+  }, []);
 
   // Handle theme switching for page 4
   useEffect(() => {
@@ -113,7 +128,7 @@ const Index = () => {
         >
           <main className="relative z-10 flex flex-col items-center text-center px-6">
             {/* Profile Photo */}
-            <div className="mb-8 animate-fade-in">
+            <div className="mb-8 animate-fade-in relative">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-foreground/30 overflow-hidden shadow-2xl backdrop-blur-sm">
                 <img
                   src={profilePhoto}
@@ -121,6 +136,20 @@ const Index = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
+              
+              {/* Dev tools thinking bubble */}
+              {devToolsOpen && (
+                <div className="absolute -top-2 -right-28 md:-right-32 animate-fade-in">
+                  <div className="relative bg-foreground text-background px-3 py-2 rounded-xl text-xs md:text-sm font-medium shadow-lg">
+                    Oh. You're <em>that</em> kind of user.
+                    {/* Bubble tail */}
+                    <div className="absolute left-0 bottom-2 -translate-x-full">
+                      <div className="w-2 h-2 bg-foreground rounded-full" />
+                      <div className="w-1.5 h-1.5 bg-foreground rounded-full -ml-1 mt-0.5" />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Text Content */}
