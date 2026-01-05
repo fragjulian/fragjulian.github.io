@@ -170,7 +170,7 @@ All colors MUST be HSL.
 
 /* CSS Stars for space page - continuous flow from top to bottom */
 .space-stars {
-  background-color: transparent;
+  background-color: hsl(222.2 84% 4.9%);
   position: relative;
   isolation: isolate;
 }
@@ -211,7 +211,7 @@ All colors MUST be HSL.
     radial-gradient(1.5px 1.5px at 5% 58%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 12% 65%, white 50%, transparent 50%);
   background-size: 100% 50%;
-  animation: stars-fall 6s linear infinite, twinkle 4s ease-in-out infinite;
+  animation: stars-fall 12s linear infinite, twinkle 4s ease-in-out infinite;
 }
 
 .space-stars::after {
@@ -237,7 +237,7 @@ All colors MUST be HSL.
     radial-gradient(1px 1px at 3% 68%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 13% 75%, white 50%, transparent 50%);
   background-size: 100% 50%;
-  animation: stars-fall 9s linear infinite, twinkle 5s ease-in-out infinite 1.5s;
+  animation: stars-fall 18s linear infinite, twinkle 5s ease-in-out infinite 1.5s;
 }
 
 @keyframes stars-fall {
