@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import idleSprite from '@/assets/Mushroom-Idle.png';
+import runSprite from '@/assets/Mushroom-Run.png';
+import stunSprite from '@/assets/Mushroom-Stun.png';
 
-type PetState = 'idle' | 'happy' | 'waving' | 'bored' | 'sleeping' | 'angry' | 'curious' | 'working' | 'stargazing';
+type PetState = 'idle' | 'running' | 'stunned';
 type Section = 'hero' | 'education' | 'work' | 'space';
 
 interface PixelPetProps {
@@ -10,15 +13,23 @@ interface PixelPetProps {
 
 const STORAGE_KEY = 'pixel_pet_visitor';
 
+// Sprite sheet configurations
+const SPRITE_CONFIG = {
+  idle: { src: idleSprite, frames: 7, frameWidth: 48, frameHeight: 48, fps: 8 },
+  running: { src: runSprite, frames: 8, frameWidth: 48, frameHeight: 48, fps: 12 },
+  stunned: { src: stunSprite, frames: 14, frameWidth: 48, frameHeight: 48, fps: 10 },
+};
+
 const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [petState, setPetState] = useState<PetState>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [currentFrame, setCurrentFrame] = useState(0);
   const [isReturning, setIsReturning] = useState(false);
   
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const boredTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const stunTimerRef = useRef<NodeJS.Timeout | null>(null);
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -34,6 +45,23 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     return false;
   };
 
+  // Sprite animation loop
+  useEffect(() => {
+    if (!isVisible || shouldDisable()) return;
+
+    const config = SPRITE_CONFIG[petState];
+    const interval = setInterval(() => {
+      setCurrentFrame(prev => (prev + 1) % config.frames);
+    }, 1000 / config.fps);
+
+    return () => clearInterval(interval);
+  }, [isVisible, petState]);
+
+  // Reset frame when state changes
+  useEffect(() => {
+    setCurrentFrame(0);
+  }, [petState]);
+
   // Initialize and check for returning visitor
   useEffect(() => {
     if (shouldDisable()) return;
@@ -41,7 +69,6 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     const hasVisited = localStorage.getItem(STORAGE_KEY);
     setIsReturning(!!hasVisited);
     
-    // Small delay before appearing
     const timer = setTimeout(() => {
       setIsVisible(true);
       onAppear();
@@ -67,20 +94,14 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   // Reset idle timer
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    if (boredTimerRef.current) clearTimeout(boredTimerRef.current);
+    if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
     
-    if (petState === 'sleeping' || petState === 'bored') {
+    if (petState !== 'stunned') {
       setPetState('idle');
     }
 
     idleTimerRef.current = setTimeout(() => {
-      setPetState('bored');
-      showMessage("*yawn*", 2000);
-      
-      boredTimerRef.current = setTimeout(() => {
-        setPetState('sleeping');
-        showMessage("zzz...", 2000);
-      }, 5000);
+      showMessage("zzz...", 2000);
     }, 15000);
   }, [petState, showMessage]);
 
@@ -91,8 +112,9 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     const handleMouseMove = (e: MouseEvent) => {
       resetIdleTimer();
       
-      // Only occasionally follow cursor (10% chance per significant movement)
-      if (Math.random() < 0.02 && petState !== 'sleeping') {
+      // Occasionally follow cursor (run animation)
+      if (Math.random() < 0.02 && petState === 'idle') {
+        setPetState('running');
         const targetX = Math.min(50, Math.max(-50, (e.clientX - window.innerWidth + 100) * 0.05));
         const targetY = Math.min(20, Math.max(-20, (e.clientY - window.innerHeight + 100) * 0.05));
         targetPositionRef.current = { x: targetX, y: targetY };
@@ -108,10 +130,13 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
               animationFrameRef.current = requestAnimationFrame(animate);
             } else {
               animationFrameRef.current = null;
+              setPetState('idle');
             }
           };
           animate();
         }
+        
+        setTimeout(() => setPetState('idle'), 1500);
       }
     };
 
@@ -125,9 +150,10 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
     const handleScroll = () => {
       resetIdleTimer();
-      if (petState === 'sleeping') {
-        setPetState('curious');
-        showMessage("Hmm?", 1500);
+      if (petState === 'idle') {
+        setPetState('running');
+        showMessage("Whoa!", 1500);
+        setTimeout(() => setPetState('idle'), 1000);
       }
     };
 
@@ -135,7 +161,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     return () => window.removeEventListener('scroll', handleScroll, true);
   }, [isVisible, petState, resetIdleTimer, showMessage]);
 
-  // Handle spam clicking
+  // Handle spam clicking - shows stunned animation
   const handleClick = () => {
     if (shouldDisable()) return;
     
@@ -149,27 +175,25 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     }, 1000);
 
     if (clickCountRef.current >= 5) {
-      setPetState('angry');
+      setPetState('stunned');
       showMessage("Hey! Stop that! 😤", 2500);
       clickCountRef.current = 0;
       setTimeout(() => setPetState('idle'), 2500);
     } else if (clickCountRef.current === 1) {
-      setPetState('happy');
       showMessage("Hi! ✨", 1500);
-      setTimeout(() => setPetState('idle'), 1500);
     }
   };
 
-  // Handle hover
+  // Handle hover - run animation
   const handleMouseEnter = () => {
-    if (shouldDisable() || petState === 'angry') return;
+    if (shouldDisable() || petState === 'stunned') return;
     resetIdleTimer();
-    setPetState('waving');
+    setPetState('running');
   };
 
   const handleMouseLeave = () => {
     if (shouldDisable()) return;
-    if (petState === 'waving') {
+    if (petState === 'running') {
       setPetState('idle');
     }
   };
@@ -182,18 +206,18 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       lastSectionRef.current = currentSection;
       resetIdleTimer();
 
-      const sectionReactions: Record<Section, { state: PetState; message: string }> = {
-        hero: { state: 'happy', message: 'Nice to meet you!' },
-        education: { state: 'curious', message: '📚 Smart!' },
-        work: { state: 'working', message: '💼 Impressive!' },
-        space: { state: 'stargazing', message: '✨ Wow...' }
+      const sectionReactions: Record<Section, string> = {
+        hero: 'Nice to meet you!',
+        education: '📚 Smart!',
+        work: '💼 Impressive!',
+        space: '✨ Wow...'
       };
 
-      const reaction = sectionReactions[currentSection];
-      if (reaction && petState !== 'sleeping' && petState !== 'angry') {
-        setPetState(reaction.state);
-        showMessage(reaction.message, 2000);
-        setTimeout(() => setPetState('idle'), 2500);
+      const message = sectionReactions[currentSection];
+      if (message && petState !== 'stunned') {
+        setPetState('running');
+        showMessage(message, 2000);
+        setTimeout(() => setPetState('idle'), 1500);
       }
     }
   }, [currentSection, isVisible, petState, resetIdleTimer, showMessage]);
@@ -202,7 +226,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   useEffect(() => {
     return () => {
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      if (boredTimerRef.current) clearTimeout(boredTimerRef.current);
+      if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
       if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
       if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
@@ -218,31 +242,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
   if (!isVisible || shouldDisable()) return null;
 
-  // Pixel art representations for each state
-  const getPetFace = () => {
-    switch (petState) {
-      case 'happy':
-        return { eyes: '^', mouth: 'w' };
-      case 'waving':
-        return { eyes: '◕', mouth: '◡', arm: '/' };
-      case 'bored':
-        return { eyes: '−', mouth: '~' };
-      case 'sleeping':
-        return { eyes: '−', mouth: '○', zzz: true };
-      case 'angry':
-        return { eyes: '>', mouth: '<' };
-      case 'curious':
-        return { eyes: '●', mouth: 'o' };
-      case 'working':
-        return { eyes: '◉', mouth: '‿' };
-      case 'stargazing':
-        return { eyes: '★', mouth: '○' };
-      default:
-        return { eyes: '•', mouth: '‿' };
-    }
-  };
-
-  const face = getPetFace();
+  const config = SPRITE_CONFIG[petState];
 
   return (
     <div
@@ -264,58 +264,29 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
         </div>
       )}
 
-      {/* Pet body */}
+      {/* Pet sprite */}
       <div
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className="relative cursor-pointer group"
       >
-        {/* Main body - pixel art style */}
-        <div className="relative w-12 h-12 bg-foreground/10 backdrop-blur-sm rounded-lg border border-foreground/20 flex items-center justify-center transition-transform group-hover:scale-110">
-          {/* Face */}
-          <div className="text-foreground font-mono text-center leading-none select-none">
-            <div className="text-[10px] tracking-widest">
-              {face.eyes}{face.eyes}
-            </div>
-            <div className="text-[10px] mt-0.5">
-              {face.mouth}
-            </div>
-          </div>
-
-          {/* Waving arm */}
-          {face.arm && (
-            <div className="absolute -right-1 top-1 text-foreground text-xs animate-bounce">
-              {face.arm}
-            </div>
-          )}
-
-          {/* Sleeping Zzz */}
-          {face.zzz && (
-            <div className="absolute -top-2 -right-2 text-foreground/60 text-[8px] animate-pulse">
-              z<span className="text-[10px]">z</span><span className="text-xs">z</span>
-            </div>
-          )}
-
-          {/* Blush for happy/waving states */}
-          {(petState === 'happy' || petState === 'waving') && (
-            <>
-              <div className="absolute left-1 top-1/2 w-1.5 h-1 bg-pink-400/40 rounded-full" />
-              <div className="absolute right-1 top-1/2 w-1.5 h-1 bg-pink-400/40 rounded-full" />
-            </>
-          )}
-
-          {/* Anger marks */}
-          {petState === 'angry' && (
-            <div className="absolute -top-1 right-0 text-red-400 text-[8px]">💢</div>
-          )}
-
-          {/* Stars for stargazing */}
-          {petState === 'stargazing' && (
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] animate-pulse">
-              ✦
-            </div>
-          )}
+        <div 
+          className="w-12 h-12 overflow-hidden transition-transform group-hover:scale-110"
+          style={{
+            imageRendering: 'pixelated',
+          }}
+        >
+          <div
+            style={{
+              backgroundImage: `url(${config.src})`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: `-${currentFrame * config.frameWidth}px 0`,
+              backgroundSize: `${config.frameWidth * config.frames}px ${config.frameHeight}px`,
+              width: config.frameWidth,
+              height: config.frameHeight,
+            }}
+          />
         </div>
       </div>
     </div>
