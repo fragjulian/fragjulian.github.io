@@ -13,11 +13,11 @@ interface PixelPetProps {
 
 const STORAGE_KEY = 'pixel_pet_visitor';
 
-// Sprite sheet configurations (each frame is ~64px wide, ~64px tall based on sprite sheet)
+// Sprite sheet configurations (all frames are 80x64 pixels)
 const SPRITE_CONFIG = {
   idle: { src: idleSprite, frames: 7, frameWidth: 80, frameHeight: 64, fps: 8 },
   running: { src: runSprite, frames: 8, frameWidth: 80, frameHeight: 64, fps: 12 },
-  stunned: { src: stunSprite, frames: 14, frameWidth: 102, frameHeight: 80, fps: 10 },
+  stunned: { src: stunSprite, frames: 14, frameWidth: 80, frameHeight: 64, fps: 10 },
 };
 
 const DISPLAY_SCALE = 1.5;
@@ -167,6 +167,14 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const handleClick = () => {
     if (shouldDisable()) return;
     
+    // If already stunned, extend the stun duration instead of resetting
+    if (petState === 'stunned') {
+      if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
+      showMessage("STOP! 😵", 2500);
+      stunTimerRef.current = setTimeout(() => setPetState('idle'), 2500);
+      return;
+    }
+    
     resetIdleTimer();
     clickCountRef.current++;
 
@@ -180,7 +188,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       setPetState('stunned');
       showMessage("Hey! Stop that! 😤", 2500);
       clickCountRef.current = 0;
-      setTimeout(() => setPetState('idle'), 2500);
+      if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
+      stunTimerRef.current = setTimeout(() => setPetState('idle'), 2500);
     } else if (clickCountRef.current === 1) {
       showMessage("Hi! ✨", 1500);
     }
@@ -256,10 +265,10 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     >
       {/* Speech bubble */}
       {message && (
-        <div className="absolute bottom-full right-0 mb-2 animate-fade-in">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 animate-fade-in">
           <div className="relative bg-foreground text-background px-3 py-2 rounded-xl text-xs font-medium shadow-lg whitespace-nowrap">
             <span dangerouslySetInnerHTML={{ __html: message }} />
-            <div className="absolute right-4 top-full">
+            <div className="absolute left-1/2 -translate-x-1/2 top-full">
               <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-foreground" />
             </div>
           </div>
