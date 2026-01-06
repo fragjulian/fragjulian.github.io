@@ -13,12 +13,14 @@ interface PixelPetProps {
 
 const STORAGE_KEY = 'pixel_pet_visitor';
 
-// Sprite sheet configurations
+// Sprite sheet configurations (each frame is ~64px wide, ~64px tall based on sprite sheet)
 const SPRITE_CONFIG = {
-  idle: { src: idleSprite, frames: 7, frameWidth: 48, frameHeight: 48, fps: 8 },
-  running: { src: runSprite, frames: 8, frameWidth: 48, frameHeight: 48, fps: 12 },
-  stunned: { src: stunSprite, frames: 14, frameWidth: 48, frameHeight: 48, fps: 10 },
+  idle: { src: idleSprite, frames: 7, frameWidth: 80, frameHeight: 64, fps: 8 },
+  running: { src: runSprite, frames: 8, frameWidth: 80, frameHeight: 64, fps: 12 },
+  stunned: { src: stunSprite, frames: 14, frameWidth: 102, frameHeight: 80, fps: 10 },
 };
+
+const DISPLAY_SCALE = 1.5;
 
 const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -272,8 +274,10 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
         className="relative cursor-pointer group"
       >
         <div 
-          className="w-12 h-12 overflow-hidden transition-transform group-hover:scale-110"
+          className="overflow-hidden transition-transform group-hover:scale-110"
           style={{
+            width: config.frameWidth * DISPLAY_SCALE,
+            height: config.frameHeight * DISPLAY_SCALE,
             imageRendering: 'pixelated',
           }}
         >
@@ -281,10 +285,10 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             style={{
               backgroundImage: `url(${config.src})`,
               backgroundRepeat: 'no-repeat',
-              backgroundPosition: `-${currentFrame * config.frameWidth}px 0`,
-              backgroundSize: `${config.frameWidth * config.frames}px ${config.frameHeight}px`,
-              width: config.frameWidth,
-              height: config.frameHeight,
+              backgroundPosition: `-${currentFrame * config.frameWidth * DISPLAY_SCALE}px 0`,
+              backgroundSize: `${config.frameWidth * config.frames * DISPLAY_SCALE}px ${config.frameHeight * DISPLAY_SCALE}px`,
+              width: config.frameWidth * DISPLAY_SCALE,
+              height: config.frameHeight * DISPLAY_SCALE,
             }}
           />
         </div>
