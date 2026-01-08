@@ -120,8 +120,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       
       // Occasionally follow cursor (run animation)
       if (Math.random() < 0.02 && petState === 'idle') {
-        const targetX = Math.min(50, Math.max(-50, (e.clientX - window.innerWidth + 100) * 0.05));
-        const targetY = Math.min(20, Math.max(-20, (e.clientY - window.innerHeight + 100) * 0.05));
+        const targetX = (e.clientX - window.innerWidth / 2) * 0.3;
+        const targetY = (e.clientY - window.innerHeight / 2) * 0.2;
         
         // Set facing direction based on movement
         setFacingRight(targetX > position.x);
@@ -159,16 +159,11 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
     const handleScroll = () => {
       resetIdleTimer();
-      if (petState === 'idle') {
-        setPetState('running');
-        showMessage("Whoa!", 1500);
-        setTimeout(() => setPetState('idle'), 1000);
-      }
     };
 
     window.addEventListener('scroll', handleScroll, true);
     return () => window.removeEventListener('scroll', handleScroll, true);
-  }, [isVisible, petState, resetIdleTimer, showMessage]);
+  }, [isVisible, resetIdleTimer]);
 
   // Handle spam clicking - shows stunned animation
   const handleClick = () => {
@@ -188,12 +183,12 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
     if (clickCountRef.current >= 5) {
       setPetState('stunned');
-      showMessage("Hey! Stop that! 😤", 2500);
+      showMessage("Hey! Stop that! 😤", 1500);
       clickCountRef.current = 0;
       if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
       stunTimerRef.current = setTimeout(() => {
         setPetState('idle');
-      }, 2500);
+      }, 1500);
     } else if (clickCountRef.current === 1) {
       showMessage("Hi! ✨", 1500);
     }
