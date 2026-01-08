@@ -47,6 +47,11 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     return false;
   };
 
+  // Reset frame when state changes
+  useEffect(() => {
+    setCurrentFrame(0);
+  }, [petState]);
+
   // Sprite animation loop
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
@@ -64,11 +69,6 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
     return () => clearInterval(interval);
   }, [isVisible, petState]);
-
-  // Reset frame when state changes
-  useEffect(() => {
-    setCurrentFrame(0);
-  }, [petState]);
 
   // Initialize and check for returning visitor
   useEffect(() => {
@@ -176,8 +176,11 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     // If already stunned, extend the stun duration instead of resetting
     if (petState === 'stunned') {
       if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
-      showMessage("STOP! 😵", 2500);
-      stunTimerRef.current = setTimeout(() => setPetState('idle'), 2500);
+      showMessage("Hey! Stop that! 😤", 2500);
+      stunTimerRef.current = setTimeout(() => {
+        setCurrentFrame(0);
+        setPetState('idle');
+      }, 2500);
       return;
     }
     
@@ -195,7 +198,10 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       showMessage("Hey! Stop that! 😤", 2500);
       clickCountRef.current = 0;
       if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
-      stunTimerRef.current = setTimeout(() => setPetState('idle'), 2500);
+      stunTimerRef.current = setTimeout(() => {
+        setCurrentFrame(0);
+        setPetState('idle');
+      }, 2500);
     } else if (clickCountRef.current === 1) {
       showMessage("Hi! ✨", 1500);
     }
