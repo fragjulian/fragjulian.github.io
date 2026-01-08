@@ -102,14 +102,11 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   // Reset idle timer
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
-    
-    if (petState !== 'stunned') {
-      setPetState('idle');
-    }
 
     idleTimerRef.current = setTimeout(() => {
-      showMessage("zzz...", 2000);
+      if (petState !== 'stunned') {
+        showMessage("zzz...", 2000);
+      }
     }, 15000);
   }, [petState, showMessage]);
 
@@ -210,15 +207,14 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   // Handle hover - run animation
   const handleMouseEnter = () => {
     if (shouldDisable() || petState === 'stunned') return;
-    resetIdleTimer();
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     setPetState('running');
   };
 
   const handleMouseLeave = () => {
-    if (shouldDisable()) return;
-    if (petState === 'running') {
-      setPetState('idle');
-    }
+    if (shouldDisable() || petState === 'stunned') return;
+    setPetState('idle');
+    resetIdleTimer();
   };
 
   // React to section changes
@@ -277,7 +273,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     >
       {/* Speech bubble */}
       {message && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 -mb-2 animate-fade-in">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 -mb-6 animate-fade-in">
           <div className="relative bg-foreground text-background px-3 py-2 rounded-xl text-xs font-medium shadow-lg whitespace-nowrap">
             <span dangerouslySetInnerHTML={{ __html: message }} />
             <div className="absolute left-1/2 -translate-x-1/2 top-full">
