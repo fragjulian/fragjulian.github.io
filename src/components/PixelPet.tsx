@@ -17,7 +17,7 @@ const STORAGE_KEY = 'pixel_pet_visitor';
 const SPRITE_CONFIG = {
   idle: { src: idleSprite, frames: 7, frameWidth: 80, frameHeight: 64, fps: 8 },
   running: { src: runSprite, frames: 8, frameWidth: 80, frameHeight: 64, fps: 12 },
-  stunned: { src: stunSprite, frames: 7, frameWidth: 80, frameHeight: 64, fps: 10, loop: false },
+  stunned: { src: stunSprite, frames: 18, frameWidth: 80, frameHeight: 64, fps: 12, loop: false },
 };
 
 const DISPLAY_SCALE = 1.5;
@@ -271,7 +271,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     >
       {/* Speech bubble */}
       {message && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-0 animate-fade-in">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 -mb-2 animate-fade-in">
           <div className="relative bg-foreground text-background px-3 py-2 rounded-xl text-xs font-medium shadow-lg whitespace-nowrap">
             <span dangerouslySetInnerHTML={{ __html: message }} />
             <div className="absolute left-1/2 -translate-x-1/2 top-full">
