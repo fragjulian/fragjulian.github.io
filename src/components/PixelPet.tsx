@@ -27,6 +27,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const [petState, setPetState] = useState<PetState>('idle');
   const [message, setMessage] = useState<string | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [facingRight, setFacingRight] = useState(false);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isReturning, setIsReturning] = useState(false);
   
@@ -119,9 +120,12 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       
       // Occasionally follow cursor (run animation)
       if (Math.random() < 0.02 && petState === 'idle') {
-        setPetState('running');
         const targetX = Math.min(50, Math.max(-50, (e.clientX - window.innerWidth + 100) * 0.05));
         const targetY = Math.min(20, Math.max(-20, (e.clientY - window.innerHeight + 100) * 0.05));
+        
+        // Set facing direction based on movement
+        setFacingRight(targetX > position.x);
+        setPetState('running');
         targetPositionRef.current = { x: targetX, y: targetY };
         
         if (!animationFrameRef.current) {
@@ -170,16 +174,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const handleClick = () => {
     if (shouldDisable()) return;
     
-    // If already stunned, extend the stun duration instead of resetting
-    if (petState === 'stunned') {
-      if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
-      showMessage("Hey! Stop that! 😤", 2500);
-      stunTimerRef.current = setTimeout(() => {
-        setCurrentFrame(0);
-        setPetState('idle');
-      }, 2500);
-      return;
-    }
+    // Ignore clicks while stunned
+    if (petState === 'stunned') return;
     
     resetIdleTimer();
     clickCountRef.current++;
@@ -196,7 +192,6 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       clickCountRef.current = 0;
       if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
       stunTimerRef.current = setTimeout(() => {
-        setCurrentFrame(0);
         setPetState('idle');
       }, 2500);
     } else if (clickCountRef.current === 1) {
@@ -204,18 +199,6 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     }
   };
 
-  // Handle hover - run animation
-  const handleMouseEnter = () => {
-    if (shouldDisable() || petState === 'stunned') return;
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    setPetState('running');
-  };
-
-  const handleMouseLeave = () => {
-    if (shouldDisable() || petState === 'stunned') return;
-    setPetState('idle');
-    resetIdleTimer();
-  };
 
   // React to section changes
   useEffect(() => {
@@ -286,8 +269,6 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       {/* Pet sprite */}
       <div
         onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
         className="relative cursor-pointer group"
       >
         <div 
@@ -296,6 +277,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             width: config.frameWidth * DISPLAY_SCALE,
             height: config.frameHeight * DISPLAY_SCALE,
             imageRendering: 'pixelated',
+            transform: facingRight ? 'scaleX(-1)' : 'scaleX(1)',
           }}
         >
           <div
