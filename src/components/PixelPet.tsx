@@ -111,65 +111,69 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     }, 15000);
   }, [petState, showMessage]);
 
+  // Keep position in ref for animation loop
+  const positionRef = useRef(position);
+  useEffect(() => {
+    positionRef.current = position;
+  }, [position]);
+
   // Handle cursor movement - occasionally follow when cursor is nearby
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
+
+    // Viewport bounds
+    const maxX = 20;
+    const minX = -(window.innerWidth - 180);
+    const maxY = 20;
+    const minY = -(window.innerHeight - 180);
 
     const handleMouseMove = (e: MouseEvent) => {
       resetIdleTimer();
       
       // Calculate distance from pet to cursor
-      const petScreenX = window.innerWidth - 60 + position.x;
-      const petScreenY = window.innerHeight - 60 + position.y;
+      const currentPos = positionRef.current;
+      const petScreenX = window.innerWidth - 60 + currentPos.x;
+      const petScreenY = window.innerHeight - 60 + currentPos.y;
       const distanceToCursor = Math.sqrt(
         Math.pow(e.clientX - petScreenX, 2) + Math.pow(e.clientY - petScreenY, 2)
       );
       
-      const followRange = 250; // Only follow if cursor is within this range
-      const boredChance = 0.35; // 35% chance to get bored and not follow
+      const followRange = 300; // Only follow if cursor is within this range
+      const boredChance = 0.3; // 30% chance to get bored and not follow
       
-      // Occasionally follow cursor (run animation) - only if in range and not bored
-      if (Math.random() < 0.015 && petState === 'idle' && distanceToCursor < followRange) {
+      // Occasionally follow cursor - only if in range and not bored
+      if (Math.random() < 0.02 && petState === 'idle' && distanceToCursor < followRange) {
         // Check if bored
         if (Math.random() < boredChance) {
-          if (Math.random() < 0.1) {
+          if (Math.random() < 0.15) {
             showMessage("Hmm... 🥱", 1500);
           }
           return;
         }
         
-        // Calculate target with slower movement
-        const rawTargetX = (e.clientX - window.innerWidth / 2) * 0.1;
-        const rawTargetY = (e.clientY - window.innerHeight / 2) * 0.08;
-        
-        // Viewport bounds (pet positioned bottom-right, keep within visible area)
-        const maxX = 20;
-        const minX = -(window.innerWidth - 180);
-        const maxY = 20;
-        const minY = -(window.innerHeight - 180);
-        
-        const clampedX = Math.max(minX, Math.min(maxX, rawTargetX));
-        const clampedY = Math.max(minY, Math.min(maxY, rawTargetY));
+        // Calculate target position (move toward cursor)
+        const targetX = Math.max(minX, Math.min(maxX, (e.clientX - window.innerWidth + 80) * 0.5));
+        const targetY = Math.max(minY, Math.min(maxY, (e.clientY - window.innerHeight + 80) * 0.5));
         
         // Set facing direction based on movement direction
-        setFacingRight(clampedX > position.x);
+        setFacingRight(targetX > currentPos.x);
         setPetState('running');
-        targetPositionRef.current = { x: clampedX, y: clampedY };
+        targetPositionRef.current = { x: targetX, y: targetY };
         
         if (!animationFrameRef.current) {
           const animate = () => {
-            setPosition(prev => {
-              const newX = prev.x + (targetPositionRef.current.x - prev.x) * 0.03; // Slower interpolation
-              const newY = prev.y + (targetPositionRef.current.y - prev.y) * 0.03;
-              return {
+            const current = positionRef.current;
+            const target = targetPositionRef.current;
+            const dx = target.x - current.x;
+            const dy = target.y - current.y;
+            
+            if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+              const newX = current.x + dx * 0.05;
+              const newY = current.y + dy * 0.05;
+              setPosition({
                 x: Math.max(minX, Math.min(maxX, newX)),
                 y: Math.max(minY, Math.min(maxY, newY))
-              };
-            });
-            
-            const dx = Math.abs(targetPositionRef.current.x - position.x);
-            const dy = Math.abs(targetPositionRef.current.y - position.y);
-            if (dx > 1 || dy > 1) {
+              });
               animationFrameRef.current = requestAnimationFrame(animate);
             } else {
               animationFrameRef.current = null;
@@ -179,13 +183,20 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           animate();
         }
         
-        setTimeout(() => setPetState('idle'), 2000);
+        // Fallback to idle after timeout
+        setTimeout(() => {
+          if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
+            animationFrameRef.current = null;
+          }
+          setPetState('idle');
+        }, 2500);
       }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isVisible, petState, resetIdleTimer, position, showMessage]);
+  }, [isVisible, petState, resetIdleTimer, showMessage]);
 
   // Handle scrolling
   useEffect(() => {
