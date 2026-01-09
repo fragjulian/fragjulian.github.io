@@ -78,10 +78,9 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     messageTimerRef.current = setTimeout(() => setMessage(null), duration);
   }, []);
 
-  // Initialize only when on space section (page 4) for better performance
+  // Initialize on any page
   useEffect(() => {
     if (shouldDisable()) return;
-    if (currentSection !== 'space') return; // Only activate on page 4
     if (isVisible) return; // Already visible
 
     const hasVisited = localStorage.getItem(STORAGE_KEY);
@@ -100,7 +99,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [onAppear, currentSection, isVisible, showMessage]);
+  }, [onAppear, isVisible, showMessage]);
 
   // Reset idle timer
   const resetIdleTimer = useCallback(() => {
@@ -126,28 +125,27 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     const handleMouseMove = (e: MouseEvent) => {
       resetIdleTimer();
       
-      // Viewport bounds - pet can roam entire screen
-      const padding = 100;
-      const maxX = window.innerWidth - padding - 120; // 120 = pet default right position
-      const minX = -120 + padding;
-      const maxY = window.innerHeight - padding - 120;
-      const minY = -120 + padding;
+      // Pet is fixed at bottom-right: bottom-4 right-4 = 16px from edges
+      // Pet size is roughly 120x96 (80*1.5 x 64*1.5)
+      const petWidth = 120;
+      const petHeight = 96;
+      const baseRight = 16;
+      const baseBottom = 16;
       
-      // Calculate distance from pet to cursor
+      // Calculate pet's current screen position
       const currentPos = positionRef.current;
-      // Pet's actual screen position (it's positioned bottom-right by default)
-      const petScreenX = window.innerWidth - 60 + currentPos.x;
-      const petScreenY = window.innerHeight - 60 + currentPos.y;
+      const petScreenX = window.innerWidth - baseRight - petWidth / 2 + currentPos.x;
+      const petScreenY = window.innerHeight - baseBottom - petHeight / 2 + currentPos.y;
+      
       const distanceToCursor = Math.sqrt(
         Math.pow(e.clientX - petScreenX, 2) + Math.pow(e.clientY - petScreenY, 2)
       );
       
-      const followRange = 400; // Follow if cursor is within this range
-      const boredChance = 0.25; // 25% chance to get bored
+      const followRange = 350;
+      const boredChance = 0.25;
       
-      // Occasionally follow cursor - only if in range and not bored
-      if (Math.random() < 0.025 && petState === 'idle' && distanceToCursor < followRange) {
-        // Check if bored
+      // Occasionally follow cursor
+      if (Math.random() < 0.02 && petState === 'idle' && distanceToCursor < followRange) {
         if (Math.random() < boredChance) {
           if (Math.random() < 0.12) {
             showMessage("Hmm... 🥱", 1500);
@@ -155,16 +153,27 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           return;
         }
         
-        // Calculate target position - move toward cursor position
-        // Convert cursor screen position to pet's coordinate system
-        const targetX = e.clientX - (window.innerWidth - 60);
-        const targetY = e.clientY - (window.innerHeight - 60);
+        // Viewport bounds - keep pet fully visible with padding
+        const padding = 20;
+        // maxX: how far LEFT the pet can move (negative moves left from default position)
+        const maxX = 0; // Can't go further right than default
+        const minX = -(window.innerWidth - petWidth - baseRight - padding);
+        // maxY: how far UP the pet can move (negative moves up from default position)
+        const maxY = 0; // Can't go further down than default
+        const minY = -(window.innerHeight - petHeight - baseBottom - padding);
+        
+        // Target: move toward cursor
+        // Convert cursor position relative to pet's default position
+        const defaultPetX = window.innerWidth - baseRight - petWidth / 2;
+        const defaultPetY = window.innerHeight - baseBottom - petHeight / 2;
+        
+        const targetX = e.clientX - defaultPetX;
+        const targetY = e.clientY - defaultPetY;
         
         // Clamp to bounds
         const clampedX = Math.max(minX, Math.min(maxX, targetX));
         const clampedY = Math.max(minY, Math.min(maxY, targetY));
         
-        // Set facing direction based on movement direction
         setFacingRight(clampedX > currentPos.x);
         setPetState('running');
         targetPositionRef.current = { x: clampedX, y: clampedY };
@@ -178,11 +187,13 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance > 1) {
-              // Smooth easing - slower interpolation for smoother movement
-              const easing = 0.035;
+              const easing = 0.04;
               const newX = current.x + dx * easing;
               const newY = current.y + dy * easing;
-              setPosition({ x: newX, y: newY });
+              setPosition({
+                x: Math.max(minX, Math.min(maxX, newX)),
+                y: Math.max(minY, Math.min(maxY, newY))
+              });
               animationFrameRef.current = requestAnimationFrame(animate);
             } else {
               setPosition(target);
@@ -193,7 +204,6 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           animate();
         }
         
-        // Fallback to idle after timeout
         setTimeout(() => {
           if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);

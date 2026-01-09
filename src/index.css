@@ -175,7 +175,7 @@ All colors MUST be HSL.
   isolation: isolate;
 }
 
-/* Stars layers - seamless continuous falling animation using transform */
+/* Stars layers - static by default, animated only when .space-animated is added */
 .space-stars::before,
 .space-stars::after {
   content: '';
@@ -211,7 +211,6 @@ All colors MUST be HSL.
     radial-gradient(1.5px 1.5px at 5% 58%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 12% 65%, white 50%, transparent 50%);
   background-size: 100% 50%;
-  animation: stars-fall 12s linear infinite, twinkle 4s ease-in-out infinite;
 }
 
 .space-stars::after {
@@ -237,6 +236,14 @@ All colors MUST be HSL.
     radial-gradient(1px 1px at 3% 68%, white 50%, transparent 50%),
     radial-gradient(2px 2px at 13% 75%, white 50%, transparent 50%);
   background-size: 100% 50%;
+}
+
+/* Animations only activate when space-animated class is present */
+.space-stars.space-animated::before {
+  animation: stars-fall 12s linear infinite, twinkle 4s ease-in-out infinite;
+}
+
+.space-stars.space-animated::after {
   animation: stars-fall 18s linear infinite, twinkle 5s ease-in-out infinite 1.5s;
 }
 
