@@ -71,9 +71,18 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     return () => clearInterval(interval);
   }, [isVisible, petState]);
 
-  // Initialize and check for returning visitor
+  // Show message with auto-hide
+  const showMessage = useCallback((msg: string, duration = 3500) => {
+    setMessage(msg);
+    if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
+    messageTimerRef.current = setTimeout(() => setMessage(null), duration);
+  }, []);
+
+  // Initialize only when on space section (page 4) for better performance
   useEffect(() => {
     if (shouldDisable()) return;
+    if (currentSection !== 'space') return; // Only activate on page 4
+    if (isVisible) return; // Already visible
 
     const hasVisited = localStorage.getItem(STORAGE_KEY);
     setIsReturning(!!hasVisited);
@@ -91,14 +100,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [onAppear]);
-
-  // Show message with auto-hide
-  const showMessage = useCallback((msg: string, duration = 3500) => {
-    setMessage(msg);
-    if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
-    messageTimerRef.current = setTimeout(() => setMessage(null), duration);
-  }, []);
+  }, [onAppear, currentSection, isVisible, showMessage]);
 
   // Reset idle timer
   const resetIdleTimer = useCallback(() => {
@@ -121,44 +123,51 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
 
-    // Viewport bounds
-    const maxX = 20;
-    const minX = -(window.innerWidth - 180);
-    const maxY = 20;
-    const minY = -(window.innerHeight - 180);
-
     const handleMouseMove = (e: MouseEvent) => {
       resetIdleTimer();
       
+      // Viewport bounds - pet can roam entire screen
+      const padding = 100;
+      const maxX = window.innerWidth - padding - 120; // 120 = pet default right position
+      const minX = -120 + padding;
+      const maxY = window.innerHeight - padding - 120;
+      const minY = -120 + padding;
+      
       // Calculate distance from pet to cursor
       const currentPos = positionRef.current;
+      // Pet's actual screen position (it's positioned bottom-right by default)
       const petScreenX = window.innerWidth - 60 + currentPos.x;
       const petScreenY = window.innerHeight - 60 + currentPos.y;
       const distanceToCursor = Math.sqrt(
         Math.pow(e.clientX - petScreenX, 2) + Math.pow(e.clientY - petScreenY, 2)
       );
       
-      const followRange = 300; // Only follow if cursor is within this range
-      const boredChance = 0.3; // 30% chance to get bored and not follow
+      const followRange = 400; // Follow if cursor is within this range
+      const boredChance = 0.25; // 25% chance to get bored
       
       // Occasionally follow cursor - only if in range and not bored
-      if (Math.random() < 0.02 && petState === 'idle' && distanceToCursor < followRange) {
+      if (Math.random() < 0.025 && petState === 'idle' && distanceToCursor < followRange) {
         // Check if bored
         if (Math.random() < boredChance) {
-          if (Math.random() < 0.15) {
+          if (Math.random() < 0.12) {
             showMessage("Hmm... 🥱", 1500);
           }
           return;
         }
         
-        // Calculate target position (move toward cursor)
-        const targetX = Math.max(minX, Math.min(maxX, (e.clientX - window.innerWidth + 80) * 0.5));
-        const targetY = Math.max(minY, Math.min(maxY, (e.clientY - window.innerHeight + 80) * 0.5));
+        // Calculate target position - move toward cursor position
+        // Convert cursor screen position to pet's coordinate system
+        const targetX = e.clientX - (window.innerWidth - 60);
+        const targetY = e.clientY - (window.innerHeight - 60);
+        
+        // Clamp to bounds
+        const clampedX = Math.max(minX, Math.min(maxX, targetX));
+        const clampedY = Math.max(minY, Math.min(maxY, targetY));
         
         // Set facing direction based on movement direction
-        setFacingRight(targetX > currentPos.x);
+        setFacingRight(clampedX > currentPos.x);
         setPetState('running');
-        targetPositionRef.current = { x: targetX, y: targetY };
+        targetPositionRef.current = { x: clampedX, y: clampedY };
         
         if (!animationFrameRef.current) {
           const animate = () => {
@@ -166,16 +175,17 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             const target = targetPositionRef.current;
             const dx = target.x - current.x;
             const dy = target.y - current.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-              const newX = current.x + dx * 0.05;
-              const newY = current.y + dy * 0.05;
-              setPosition({
-                x: Math.max(minX, Math.min(maxX, newX)),
-                y: Math.max(minY, Math.min(maxY, newY))
-              });
+            if (distance > 1) {
+              // Smooth easing - slower interpolation for smoother movement
+              const easing = 0.035;
+              const newX = current.x + dx * easing;
+              const newY = current.y + dy * easing;
+              setPosition({ x: newX, y: newY });
               animationFrameRef.current = requestAnimationFrame(animate);
             } else {
+              setPosition(target);
               animationFrameRef.current = null;
               setPetState('idle');
             }
@@ -190,7 +200,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             animationFrameRef.current = null;
           }
           setPetState('idle');
-        }, 2500);
+        }, 3000);
       }
     };
 
@@ -290,8 +300,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     <div
       className="fixed bottom-4 right-4 z-[100] select-none"
       style={{
-        transform: `translate(${position.x}px, ${position.y}px)`,
-        transition: 'transform 0.3s ease-out'
+        transform: `translate(${position.x}px, ${position.y}px)`
       }}
     >
       {/* Speech bubble */}
