@@ -111,31 +111,65 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     }, 15000);
   }, [petState, showMessage]);
 
-  // Handle cursor movement - occasionally follow
+  // Handle cursor movement - occasionally follow when cursor is nearby
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       resetIdleTimer();
       
-      // Occasionally follow cursor (run animation)
-      if (Math.random() < 0.02 && petState === 'idle') {
-        const targetX = (e.clientX - window.innerWidth / 2) * 0.3;
-        const targetY = (e.clientY - window.innerHeight / 2) * 0.2;
+      // Calculate distance from pet to cursor
+      const petScreenX = window.innerWidth - 60 + position.x;
+      const petScreenY = window.innerHeight - 60 + position.y;
+      const distanceToCursor = Math.sqrt(
+        Math.pow(e.clientX - petScreenX, 2) + Math.pow(e.clientY - petScreenY, 2)
+      );
+      
+      const followRange = 250; // Only follow if cursor is within this range
+      const boredChance = 0.35; // 35% chance to get bored and not follow
+      
+      // Occasionally follow cursor (run animation) - only if in range and not bored
+      if (Math.random() < 0.015 && petState === 'idle' && distanceToCursor < followRange) {
+        // Check if bored
+        if (Math.random() < boredChance) {
+          if (Math.random() < 0.1) {
+            showMessage("Hmm... 🥱", 1500);
+          }
+          return;
+        }
         
-        // Set facing direction based on movement
-        setFacingRight(targetX > position.x);
+        // Calculate target with slower movement
+        const rawTargetX = (e.clientX - window.innerWidth / 2) * 0.1;
+        const rawTargetY = (e.clientY - window.innerHeight / 2) * 0.08;
+        
+        // Viewport bounds (pet positioned bottom-right, keep within visible area)
+        const maxX = 20;
+        const minX = -(window.innerWidth - 180);
+        const maxY = 20;
+        const minY = -(window.innerHeight - 180);
+        
+        const clampedX = Math.max(minX, Math.min(maxX, rawTargetX));
+        const clampedY = Math.max(minY, Math.min(maxY, rawTargetY));
+        
+        // Set facing direction based on movement direction
+        setFacingRight(clampedX > position.x);
         setPetState('running');
-        targetPositionRef.current = { x: targetX, y: targetY };
+        targetPositionRef.current = { x: clampedX, y: clampedY };
         
         if (!animationFrameRef.current) {
           const animate = () => {
-            setPosition(prev => ({
-              x: prev.x + (targetPositionRef.current.x - prev.x) * 0.1,
-              y: prev.y + (targetPositionRef.current.y - prev.y) * 0.1
-            }));
+            setPosition(prev => {
+              const newX = prev.x + (targetPositionRef.current.x - prev.x) * 0.03; // Slower interpolation
+              const newY = prev.y + (targetPositionRef.current.y - prev.y) * 0.03;
+              return {
+                x: Math.max(minX, Math.min(maxX, newX)),
+                y: Math.max(minY, Math.min(maxY, newY))
+              };
+            });
             
-            if (Math.abs(targetPositionRef.current.x - position.x) > 0.1) {
+            const dx = Math.abs(targetPositionRef.current.x - position.x);
+            const dy = Math.abs(targetPositionRef.current.y - position.y);
+            if (dx > 1 || dy > 1) {
               animationFrameRef.current = requestAnimationFrame(animate);
             } else {
               animationFrameRef.current = null;
@@ -145,13 +179,13 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           animate();
         }
         
-        setTimeout(() => setPetState('idle'), 1500);
+        setTimeout(() => setPetState('idle'), 2000);
       }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isVisible, petState, resetIdleTimer, position]);
+  }, [isVisible, petState, resetIdleTimer, position, showMessage]);
 
   // Handle scrolling
   useEffect(() => {
