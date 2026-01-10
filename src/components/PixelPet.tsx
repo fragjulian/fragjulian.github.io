@@ -137,17 +137,11 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       const petScreenX = window.innerWidth - baseRight - petWidth / 2 + currentPos.x;
       const petScreenY = window.innerHeight - baseBottom - petHeight / 2 + currentPos.y;
       
-      const distanceToCursor = Math.sqrt(
-        Math.pow(e.clientX - petScreenX, 2) + Math.pow(e.clientY - petScreenY, 2)
-      );
-      
-      const followRange = 400;
-      
-      // Follow cursor more reliably when nearby
-      if (Math.random() < 0.06 && petState === 'idle' && distanceToCursor < followRange) {
-        // Small chance to be bored
-        if (Math.random() < 0.15) {
-          if (Math.random() < 0.3) {
+      // Follow cursor always, but occasionally lose interest
+      if (Math.random() < 0.06 && petState === 'idle') {
+        // Small chance to get bored and stop
+        if (Math.random() < 0.12) {
+          if (Math.random() < 0.4) {
             showMessage("Hmm... 🥱", 1500);
           }
           return;
@@ -271,6 +265,9 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
 
   // React to section changes - just show message, no running animation
+  // Track if we've visited hero before to avoid repeating "Nice to meet you"
+  const visitedSectionsRef = useRef<Set<Section>>(new Set());
+  
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
     
@@ -278,16 +275,21 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       lastSectionRef.current = currentSection;
       resetIdleTimer();
 
-      const sectionReactions: Record<Section, string> = {
-        hero: 'Nice to meet you!',
-        education: '📚 Smart!',
-        work: '💼 Impressive!',
-        space: '✨ Wow...'
-      };
+      // Only show message if we haven't visited this section before
+      if (!visitedSectionsRef.current.has(currentSection)) {
+        visitedSectionsRef.current.add(currentSection);
+        
+        const sectionReactions: Record<Section, string> = {
+          hero: 'Nice to meet you!',
+          education: '📚 Smart!',
+          work: '💼 Impressive!',
+          space: '✨ Wow...'
+        };
 
-      const message = sectionReactions[currentSection];
-      if (message && petState !== 'stunned') {
-        showMessage(message, 2000);
+        const message = sectionReactions[currentSection];
+        if (message && petState !== 'stunned') {
+          showMessage(message, 2000);
+        }
       }
     }
   }, [currentSection, isVisible, petState, resetIdleTimer, showMessage]);
