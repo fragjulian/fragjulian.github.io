@@ -238,7 +238,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const handleClick = () => {
     if (shouldDisable()) return;
     
-    // Ignore clicks while stunned
+    // Completely ignore all clicks while stunned
     if (petState === 'stunned') return;
     
     resetIdleTimer();
@@ -254,6 +254,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       setPetState('stunned');
       showMessage("Hey! Stop that! 😤", 1500);
       clickCountRef.current = 0;
+      if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
       if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
       stunTimerRef.current = setTimeout(() => {
         setPetState('idle');
