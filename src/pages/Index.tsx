@@ -346,7 +346,7 @@ const Index = () => {
 
         {/* Page 4 - Space Canvas */}
         <section 
-          className={`h-dvh flex flex-col snap-start relative overflow-hidden ${currentPage === 3 ? 'space-stars space-animated' : 'space-stars'}`}
+          className="h-dvh flex flex-col snap-start relative overflow-hidden space-stars"
         >
           {/* Quote in top left */}
           <div className="absolute top-8 left-8 md:top-16 md:left-16 z-20 max-w-xs md:max-w-sm">

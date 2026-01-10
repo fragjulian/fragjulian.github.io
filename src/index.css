@@ -238,12 +238,11 @@ All colors MUST be HSL.
   background-size: 100% 50%;
 }
 
-/* Animations only activate when space-animated class is present */
-.space-stars.space-animated::before {
+.space-stars::before {
   animation: stars-fall 12s linear infinite, twinkle 4s ease-in-out infinite;
 }
 
-.space-stars.space-animated::after {
+.space-stars::after {
   animation: stars-fall 18s linear infinite, twinkle 5s ease-in-out infinite 1.5s;
 }
 
