@@ -196,10 +196,10 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             const currentBounds = getBounds();
             
             if (distance > 2) {
-              // Smooth, steady movement
-              const easing = 0.035;
-              const newX = current.x + dx * easing;
-              const newY = current.y + dy * easing;
+              // Constant speed movement (pixels per frame)
+              const speed = 1.5;
+              const newX = current.x + (dx / distance) * speed;
+              const newY = current.y + (dy / distance) * speed;
               setPosition({
                 x: Math.max(currentBounds.minX, Math.min(currentBounds.maxX, newX)),
                 y: Math.max(currentBounds.minY, Math.min(currentBounds.maxY, newY))
