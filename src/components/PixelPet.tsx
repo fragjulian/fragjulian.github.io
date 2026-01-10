@@ -155,20 +155,27 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
         
         // Viewport bounds - keep pet fully visible with padding
         const padding = 20;
-        // maxX: how far LEFT the pet can move (negative moves left from default position)
-        const maxX = 0; // Can't go further right than default
-        const minX = -(window.innerWidth - petWidth - baseRight - padding);
-        // maxY: how far UP the pet can move (negative moves up from default position)
-        const maxY = 0; // Can't go further down than default
-        const minY = -(window.innerHeight - petHeight - baseBottom - padding);
+        // Calculate bounds: pet can move across entire viewport
+        // minX/minY are negative (moving left/up from default bottom-right position)
+        const minX = -(window.innerWidth - petWidth - padding);
+        const maxX = 0;
+        const minY = -(window.innerHeight - petHeight - padding);
+        const maxY = 0;
         
-        // Target: move toward cursor
-        // Convert cursor position relative to pet's default position
+        // Target: move toward cursor (but not all the way - stop 100px short)
         const defaultPetX = window.innerWidth - baseRight - petWidth / 2;
         const defaultPetY = window.innerHeight - baseBottom - petHeight / 2;
         
-        const targetX = e.clientX - defaultPetX;
-        const targetY = e.clientY - defaultPetY;
+        // Calculate direction to cursor and move partially toward it
+        const dirX = e.clientX - defaultPetX;
+        const dirY = e.clientY - defaultPetY;
+        const distToTarget = Math.sqrt(dirX * dirX + dirY * dirY);
+        
+        // Move to a point 80px before the cursor
+        const stopDistance = 80;
+        const ratio = Math.max(0, (distToTarget - stopDistance) / distToTarget);
+        const targetX = dirX * ratio;
+        const targetY = dirY * ratio;
         
         // Clamp to bounds
         const clampedX = Math.max(minX, Math.min(maxX, targetX));
@@ -186,8 +193,9 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             const dy = target.y - current.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance > 1) {
-              const easing = 0.04;
+            if (distance > 2) {
+              // Slower, steadier easing for smoother movement
+              const easing = 0.025;
               const newX = current.x + dx * easing;
               const newY = current.y + dy * easing;
               setPosition({
@@ -210,7 +218,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             animationFrameRef.current = null;
           }
           setPetState('idle');
-        }, 3000);
+        }, 5000);
       }
     };
 
@@ -260,7 +268,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   };
 
 
-  // React to section changes
+  // React to section changes - just show message, no running animation
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
     
@@ -277,9 +285,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
       const message = sectionReactions[currentSection];
       if (message && petState !== 'stunned') {
-        setPetState('running');
         showMessage(message, 2000);
-        setTimeout(() => setPetState('idle'), 1500);
       }
     }
   }, [currentSection, isVisible, petState, resetIdleTimer, showMessage]);
