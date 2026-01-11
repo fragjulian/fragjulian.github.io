@@ -168,9 +168,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           setFacingRight(dx > 0);
         }
         
-        // If close to cursor (within 50px), stop and go idle
+        // If close to cursor (within 50px), stop where we are
         if (distance < 50) {
-          setPosition({ x: clampedX, y: clampedY });
           setPetState('idle');
           animationFrameRef.current = null;
           return;
