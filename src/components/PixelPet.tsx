@@ -40,6 +40,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const targetPositionRef = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number | null>(null);
   const cursorPositionRef = useRef({ x: 0, y: 0 });
+  const followTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isBoredRef = useRef(false);
 
   // Check if should be disabled
   const shouldDisable = () => {
@@ -119,7 +121,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     positionRef.current = position;
   }, [position]);
 
-  // Handle cursor movement - occasionally follow when cursor is nearby
+  // Handle cursor movement - follow cursor dynamically
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
 
@@ -137,78 +139,115 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       return { minX, maxX, minY, maxY, petWidth, petHeight, baseRight, baseBottom };
     };
 
+    const startFollowing = () => {
+      if (animationFrameRef.current || petState === 'stunned' || isBoredRef.current) return;
+      
+      setPetState('running');
+      
+      const animate = () => {
+        const current = positionRef.current;
+        const cursor = cursorPositionRef.current;
+        const bounds = getBounds();
+        
+        // Calculate target position based on CURRENT cursor position
+        const defaultPetX = window.innerWidth - bounds.baseRight - bounds.petWidth / 2;
+        const defaultPetY = window.innerHeight - bounds.baseBottom - bounds.petHeight / 2;
+        
+        const targetX = cursor.x - defaultPetX - 40;
+        const targetY = cursor.y - defaultPetY - 40;
+        
+        const clampedX = Math.max(bounds.minX, Math.min(bounds.maxX, targetX));
+        const clampedY = Math.max(bounds.minY, Math.min(bounds.maxY, targetY));
+        
+        const dx = clampedX - current.x;
+        const dy = clampedY - current.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Update facing direction based on current movement direction
+        if (Math.abs(dx) > 0.5) {
+          setFacingRight(dx > 0);
+        }
+        
+        // If close to cursor (within 50px), stop and go idle
+        if (distance < 50) {
+          setPosition({ x: clampedX, y: clampedY });
+          setPetState('idle');
+          animationFrameRef.current = null;
+          return;
+        }
+        
+        if (distance > 2) {
+          const speed = 1.5;
+          const newX = current.x + (dx / distance) * speed;
+          const newY = current.y + (dy / distance) * speed;
+          setPosition({
+            x: Math.max(bounds.minX, Math.min(bounds.maxX, newX)),
+            y: Math.max(bounds.minY, Math.min(bounds.maxY, newY))
+          });
+          animationFrameRef.current = requestAnimationFrame(animate);
+        } else {
+          setPosition({ x: clampedX, y: clampedY });
+          setPetState('idle');
+          animationFrameRef.current = null;
+        }
+      };
+      animate();
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
       resetIdleTimer();
       
       // Always update cursor position for the animation loop to use
       cursorPositionRef.current = { x: e.clientX, y: e.clientY };
       
+      // Clear any pending follow timer
+      if (followTimerRef.current) {
+        clearTimeout(followTimerRef.current);
+        followTimerRef.current = null;
+      }
+      
       // Only start following occasionally when idle
-      if (Math.random() < 0.06 && petState === 'idle') {
-        // Small chance to get bored and stop
-        if (Math.random() < 0.12) {
-          if (Math.random() < 0.4) {
-            showMessage("Hmm... 🥱", 1500);
+      if (petState === 'idle' && !isBoredRef.current) {
+        if (Math.random() < 0.06) {
+          // Small chance to get bored
+          if (Math.random() < 0.08) {
+            isBoredRef.current = true;
+            showMessage("zzz... 💤", 2000);
+            // Reset boredom after a while
+            setTimeout(() => {
+              isBoredRef.current = false;
+            }, 3000);
+            return;
           }
-          return;
-        }
-        
-        setPetState('running');
-        
-        if (!animationFrameRef.current) {
-          const animate = () => {
-            const current = positionRef.current;
-            const cursor = cursorPositionRef.current;
-            const bounds = getBounds();
-            
-            // Calculate target position based on CURRENT cursor position
-            const defaultPetX = window.innerWidth - bounds.baseRight - bounds.petWidth / 2;
-            const defaultPetY = window.innerHeight - bounds.baseBottom - bounds.petHeight / 2;
-            
-            const targetX = cursor.x - defaultPetX - 40;
-            const targetY = cursor.y - defaultPetY - 40;
-            
-            const clampedX = Math.max(bounds.minX, Math.min(bounds.maxX, targetX));
-            const clampedY = Math.max(bounds.minY, Math.min(bounds.maxY, targetY));
-            
-            const dx = clampedX - current.x;
-            const dy = clampedY - current.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Update facing direction based on current movement direction
-            if (Math.abs(dx) > 0.5) {
-              setFacingRight(dx > 0);
+          
+          startFollowing();
+          
+          // Set timeout to get bored after following for a while
+          followTimerRef.current = setTimeout(() => {
+            if (animationFrameRef.current) {
+              cancelAnimationFrame(animationFrameRef.current);
+              animationFrameRef.current = null;
             }
-            
-            if (distance > 2) {
-              const speed = 1.5;
-              const newX = current.x + (dx / distance) * speed;
-              const newY = current.y + (dy / distance) * speed;
-              setPosition({
-                x: Math.max(bounds.minX, Math.min(bounds.maxX, newX)),
-                y: Math.max(bounds.minY, Math.min(bounds.maxY, newY))
-              });
-              animationFrameRef.current = requestAnimationFrame(animate);
-            } else {
-              setPosition({ x: clampedX, y: clampedY });
-              animationFrameRef.current = requestAnimationFrame(animate); // Keep following
+            setPetState('idle');
+            if (Math.random() < 0.3) {
+              isBoredRef.current = true;
+              showMessage("zzz... 💤", 2000);
+              setTimeout(() => {
+                isBoredRef.current = false;
+              }, 3000);
             }
-          };
-          animate();
+          }, 4000);
         }
-        
-        setTimeout(() => {
-          if (animationFrameRef.current) {
-            cancelAnimationFrame(animationFrameRef.current);
-            animationFrameRef.current = null;
-          }
-          setPetState('idle');
-        }, 4000);
+      } else if (petState === 'running') {
+        // Already running, just keep the animation going (cursor pos is already updated)
       }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (followTimerRef.current) clearTimeout(followTimerRef.current);
+    };
   }, [isVisible, petState, resetIdleTimer, showMessage]);
 
   // Handle scrolling
@@ -289,6 +328,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       if (stunTimerRef.current) clearTimeout(stunTimerRef.current);
       if (messageTimerRef.current) clearTimeout(messageTimerRef.current);
       if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+      if (followTimerRef.current) clearTimeout(followTimerRef.current);
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     };
   }, []);
