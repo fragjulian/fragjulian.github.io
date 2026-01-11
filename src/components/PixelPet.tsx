@@ -36,9 +36,10 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSectionRef = useRef<Section>(currentSection);
+  const lastSectionRef = useRef<Section | null>(null);
   const targetPositionRef = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number | null>(null);
+  const cursorPositionRef = useRef({ x: 0, y: 0 });
 
   // Check if should be disabled
   const shouldDisable = () => {
@@ -122,22 +123,27 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      resetIdleTimer();
-      
-      // Pet is fixed at bottom-right: bottom-4 right-4 = 16px from edges
-      // Pet size is roughly 120x96 (80*1.5 x 64*1.5)
+    // Helper to get current bounds
+    const getBounds = () => {
       const petWidth = 120;
       const petHeight = 96;
       const baseRight = 16;
       const baseBottom = 16;
+      const padding = 20;
+      const minX = padding + petWidth / 2 - (window.innerWidth - baseRight - petWidth / 2);
+      const maxX = 0;
+      const minY = padding + petHeight / 2 - (window.innerHeight - baseBottom - petHeight / 2);
+      const maxY = 0;
+      return { minX, maxX, minY, maxY, petWidth, petHeight, baseRight, baseBottom };
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      resetIdleTimer();
       
-      // Calculate pet's current screen position
-      const currentPos = positionRef.current;
-      const petScreenX = window.innerWidth - baseRight - petWidth / 2 + currentPos.x;
-      const petScreenY = window.innerHeight - baseBottom - petHeight / 2 + currentPos.y;
+      // Always update cursor position for the animation loop to use
+      cursorPositionRef.current = { x: e.clientX, y: e.clientY };
       
-      // Follow cursor always, but occasionally lose interest
+      // Only start following occasionally when idle
       if (Math.random() < 0.06 && petState === 'idle') {
         // Small chance to get bored and stop
         if (Math.random() < 0.12) {
@@ -147,71 +153,47 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           return;
         }
         
-        // Helper to get current bounds (recalculated each frame for accuracy)
-        const getBounds = () => {
-          const padding = 20;
-          // Pet's default position is at bottom-right corner
-          // To reach left edge: need to move left by (defaultX - padding - petWidth/2)
-          // To reach top edge: need to move up by (defaultY - padding - petHeight/2)
-          const minX = padding + petWidth / 2 - (window.innerWidth - baseRight - petWidth / 2);
-          const maxX = 0;
-          const minY = padding + petHeight / 2 - (window.innerHeight - baseBottom - petHeight / 2);
-          const maxY = 0;
-          return { minX, maxX, minY, maxY };
-        };
-        
-        const bounds = getBounds();
-        
-        // Target: follow cursor directly (stop 40px before it)
-        const defaultPetX = window.innerWidth - baseRight - petWidth / 2;
-        const defaultPetY = window.innerHeight - baseBottom - petHeight / 2;
-        
-        // Calculate target position relative to pet's default position
-        const targetX = e.clientX - defaultPetX - 40; // offset so pet doesn't overlap cursor
-        const targetY = e.clientY - defaultPetY - 40;
-        
-        // Clamp to bounds
-        const clampedX = Math.max(bounds.minX, Math.min(bounds.maxX, targetX));
-        const clampedY = Math.max(bounds.minY, Math.min(bounds.maxY, targetY));
-        
-        setFacingRight(e.clientX > petScreenX);
         setPetState('running');
-        targetPositionRef.current = { x: clampedX, y: clampedY };
-        
-        // Start or continue animation - always update target and direction each frame
-        const animate = () => {
-          const current = positionRef.current;
-          const target = targetPositionRef.current;
-          const dx = target.x - current.x;
-          const dy = target.y - current.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          // Recalculate bounds each frame
-          const currentBounds = getBounds();
-          
-          // Update facing direction based on current movement direction
-          if (Math.abs(dx) > 0.5) {
-            setFacingRight(dx > 0);
-          }
-          
-          if (distance > 2) {
-            // Constant speed movement (pixels per frame)
-            const speed = 1.5;
-            const newX = current.x + (dx / distance) * speed;
-            const newY = current.y + (dy / distance) * speed;
-            setPosition({
-              x: Math.max(currentBounds.minX, Math.min(currentBounds.maxX, newX)),
-              y: Math.max(currentBounds.minY, Math.min(currentBounds.maxY, newY))
-            });
-            animationFrameRef.current = requestAnimationFrame(animate);
-          } else {
-            setPosition(target);
-            animationFrameRef.current = null;
-            setPetState('idle');
-          }
-        };
         
         if (!animationFrameRef.current) {
+          const animate = () => {
+            const current = positionRef.current;
+            const cursor = cursorPositionRef.current;
+            const bounds = getBounds();
+            
+            // Calculate target position based on CURRENT cursor position
+            const defaultPetX = window.innerWidth - bounds.baseRight - bounds.petWidth / 2;
+            const defaultPetY = window.innerHeight - bounds.baseBottom - bounds.petHeight / 2;
+            
+            const targetX = cursor.x - defaultPetX - 40;
+            const targetY = cursor.y - defaultPetY - 40;
+            
+            const clampedX = Math.max(bounds.minX, Math.min(bounds.maxX, targetX));
+            const clampedY = Math.max(bounds.minY, Math.min(bounds.maxY, targetY));
+            
+            const dx = clampedX - current.x;
+            const dy = clampedY - current.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Update facing direction based on current movement direction
+            if (Math.abs(dx) > 0.5) {
+              setFacingRight(dx > 0);
+            }
+            
+            if (distance > 2) {
+              const speed = 1.5;
+              const newX = current.x + (dx / distance) * speed;
+              const newY = current.y + (dy / distance) * speed;
+              setPosition({
+                x: Math.max(bounds.minX, Math.min(bounds.maxX, newX)),
+                y: Math.max(bounds.minY, Math.min(bounds.maxY, newY))
+              });
+              animationFrameRef.current = requestAnimationFrame(animate);
+            } else {
+              setPosition({ x: clampedX, y: clampedY });
+              animationFrameRef.current = requestAnimationFrame(animate); // Keep following
+            }
+          };
           animate();
         }
         
@@ -273,35 +255,30 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
 
 
   // React to section changes - show message on every section change
-  // Track if we've visited hero before to avoid repeating "Nice to meet you"
-  const hasVisitedHeroRef = useRef(false);
+  // Hero section never shows "Nice to meet you" - the init message handles greeting
   
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
     
-    if (lastSectionRef.current !== currentSection) {
-      lastSectionRef.current = currentSection;
-      resetIdleTimer();
+    // Skip if this is the same section (or first render with null)
+    if (lastSectionRef.current === currentSection) return;
+    
+    lastSectionRef.current = currentSection;
+    resetIdleTimer();
 
-      const sectionReactions: Record<Section, string> = {
-        hero: 'Nice to meet you!',
-        education: '📚 Smart!',
-        work: '💼 Impressive!',
-        space: '✨ Wow...'
-      };
+    // Don't show any message for hero section - greeting is handled on init
+    if (currentSection === 'hero') return;
 
-      // Skip "Nice to meet you" if we've already visited hero
-      if (currentSection === 'hero') {
-        if (hasVisitedHeroRef.current) {
-          return; // Don't show message on hero revisit
-        }
-        hasVisitedHeroRef.current = true;
-      }
+    const sectionReactions: Record<Section, string> = {
+      hero: '',
+      education: '📚 Smart!',
+      work: '💼 Impressive!',
+      space: '✨ Wow...'
+    };
 
-      const message = sectionReactions[currentSection];
-      if (message && petState !== 'stunned') {
-        showMessage(message, 2000);
-      }
+    const message = sectionReactions[currentSection];
+    if (message && petState !== 'stunned') {
+      showMessage(message, 2000);
     }
   }, [currentSection, isVisible, petState, resetIdleTimer, showMessage]);
 
