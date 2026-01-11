@@ -178,33 +178,40 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
         setPetState('running');
         targetPositionRef.current = { x: clampedX, y: clampedY };
         
+        // Start or continue animation - always update target and direction each frame
+        const animate = () => {
+          const current = positionRef.current;
+          const target = targetPositionRef.current;
+          const dx = target.x - current.x;
+          const dy = target.y - current.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          // Recalculate bounds each frame
+          const currentBounds = getBounds();
+          
+          // Update facing direction based on current movement direction
+          if (Math.abs(dx) > 0.5) {
+            setFacingRight(dx > 0);
+          }
+          
+          if (distance > 2) {
+            // Constant speed movement (pixels per frame)
+            const speed = 1.5;
+            const newX = current.x + (dx / distance) * speed;
+            const newY = current.y + (dy / distance) * speed;
+            setPosition({
+              x: Math.max(currentBounds.minX, Math.min(currentBounds.maxX, newX)),
+              y: Math.max(currentBounds.minY, Math.min(currentBounds.maxY, newY))
+            });
+            animationFrameRef.current = requestAnimationFrame(animate);
+          } else {
+            setPosition(target);
+            animationFrameRef.current = null;
+            setPetState('idle');
+          }
+        };
+        
         if (!animationFrameRef.current) {
-          const animate = () => {
-            const current = positionRef.current;
-            const target = targetPositionRef.current;
-            const dx = target.x - current.x;
-            const dy = target.y - current.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Recalculate bounds each frame
-            const currentBounds = getBounds();
-            
-            if (distance > 2) {
-              // Constant speed movement (pixels per frame)
-              const speed = 1.5;
-              const newX = current.x + (dx / distance) * speed;
-              const newY = current.y + (dy / distance) * speed;
-              setPosition({
-                x: Math.max(currentBounds.minX, Math.min(currentBounds.maxX, newX)),
-                y: Math.max(currentBounds.minY, Math.min(currentBounds.maxY, newY))
-              });
-              animationFrameRef.current = requestAnimationFrame(animate);
-            } else {
-              setPosition(target);
-              animationFrameRef.current = null;
-              setPetState('idle');
-            }
-          };
           animate();
         }
         
@@ -265,9 +272,9 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   };
 
 
-  // React to section changes - just show message, no running animation
+  // React to section changes - show message on every section change
   // Track if we've visited hero before to avoid repeating "Nice to meet you"
-  const visitedSectionsRef = useRef<Set<Section>>(new Set());
+  const hasVisitedHeroRef = useRef(false);
   
   useEffect(() => {
     if (!isVisible || shouldDisable()) return;
@@ -276,21 +283,24 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       lastSectionRef.current = currentSection;
       resetIdleTimer();
 
-      // Only show message if we haven't visited this section before
-      if (!visitedSectionsRef.current.has(currentSection)) {
-        visitedSectionsRef.current.add(currentSection);
-        
-        const sectionReactions: Record<Section, string> = {
-          hero: 'Nice to meet you!',
-          education: '📚 Smart!',
-          work: '💼 Impressive!',
-          space: '✨ Wow...'
-        };
+      const sectionReactions: Record<Section, string> = {
+        hero: 'Nice to meet you!',
+        education: '📚 Smart!',
+        work: '💼 Impressive!',
+        space: '✨ Wow...'
+      };
 
-        const message = sectionReactions[currentSection];
-        if (message && petState !== 'stunned') {
-          showMessage(message, 2000);
+      // Skip "Nice to meet you" if we've already visited hero
+      if (currentSection === 'hero') {
+        if (hasVisitedHeroRef.current) {
+          return; // Don't show message on hero revisit
         }
+        hasVisitedHeroRef.current = true;
+      }
+
+      const message = sectionReactions[currentSection];
+      if (message && petState !== 'stunned') {
+        showMessage(message, 2000);
       }
     }
   }, [currentSection, isVisible, petState, resetIdleTimer, showMessage]);
