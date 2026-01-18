@@ -170,8 +170,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           setFacingRight(dx > 0);
         }
         
-        // Decrease stamina while running (with randomness: 0.3-0.7)
-        staminaRef.current = Math.max(0, staminaRef.current - (0.3 + Math.random() * 0.4));
+        // Decrease stamina while running (much slower, with randomness: 0.05-0.15)
+        staminaRef.current = Math.max(0, staminaRef.current - (0.05 + Math.random() * 0.1));
         
         // If stamina is depleted, stop and rest
         if (staminaRef.current <= 0) {
@@ -185,6 +185,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           setTimeout(() => {
             staminaRef.current = 100;
             isRestingRef.current = false;
+            // Auto-resume running after recovery
+            startFollowing();
           }, recoveryTime);
           return;
         }
