@@ -181,6 +181,9 @@ const Index = () => {
                   Dynatrace
                 </a>
               </p>
+              <p className="text-sm md:text-base text-muted-foreground/80">
+                building performant, reusable React components.
+              </p>
             </div>
 
             {/* Social Links */}
