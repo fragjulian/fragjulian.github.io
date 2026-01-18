@@ -109,13 +109,9 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   // Reset idle timer
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-
-    idleTimerRef.current = setTimeout(() => {
-      if (petState !== 'stunned') {
-        showMessage("zzz...", 2000);
-      }
-    }, 15000);
-  }, [petState, showMessage]);
+    // Timer just resets activity tracking, no message shown
+    idleTimerRef.current = setTimeout(() => {}, 15000);
+  }, []);
 
   // Keep position in ref for animation loop
   const positionRef = useRef(position);
@@ -233,10 +229,9 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
       // Only start following occasionally when idle
       if (petState === 'idle' && !isBoredRef.current) {
         if (Math.random() < 0.06) {
-          // Small chance to get bored
+          // Small chance to get bored (no message)
           if (Math.random() < 0.08) {
             isBoredRef.current = true;
-            showMessage("zzz... 💤", 2000);
             // Reset boredom after a while
             setTimeout(() => {
               isBoredRef.current = false;
@@ -255,7 +250,6 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
             setPetState('idle');
             if (Math.random() < 0.3) {
               isBoredRef.current = true;
-              showMessage("zzz... 💤", 2000);
               setTimeout(() => {
                 isBoredRef.current = false;
               }, 3000);
