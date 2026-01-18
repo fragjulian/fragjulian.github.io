@@ -42,6 +42,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const cursorPositionRef = useRef({ x: 0, y: 0 });
   const followTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isBoredRef = useRef(false);
+  const staminaRef = useRef(100); // 0-100 stamina
+  const isRestingRef = useRef(false);
 
   // Check if should be disabled
   const shouldDisable = () => {
@@ -140,7 +142,7 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
     };
 
     const startFollowing = () => {
-      if (animationFrameRef.current || petState === 'stunned' || isBoredRef.current) return;
+      if (animationFrameRef.current || petState === 'stunned' || isBoredRef.current || isRestingRef.current) return;
       
       setPetState('running');
       
@@ -168,10 +170,30 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           setFacingRight(dx > 0);
         }
         
+        // Decrease stamina while running
+        staminaRef.current = Math.max(0, staminaRef.current - 0.5);
+        
+        // If stamina is depleted, stop and rest
+        if (staminaRef.current <= 0) {
+          isRestingRef.current = true;
+          setPetState('idle');
+          showMessage("zzz... 💤", 2000);
+          animationFrameRef.current = null;
+          
+          // Recover stamina after resting
+          setTimeout(() => {
+            staminaRef.current = 100;
+            isRestingRef.current = false;
+          }, 2500);
+          return;
+        }
+        
         // If close to cursor (within 50px), stop where we are
         if (distance < 50) {
           setPetState('idle');
           animationFrameRef.current = null;
+          // Recover some stamina when reaching cursor
+          staminaRef.current = Math.min(100, staminaRef.current + 20);
           return;
         }
         
