@@ -170,8 +170,8 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           setFacingRight(dx > 0);
         }
         
-        // Decrease stamina while running
-        staminaRef.current = Math.max(0, staminaRef.current - 0.5);
+        // Decrease stamina while running (with randomness: 0.3-0.7)
+        staminaRef.current = Math.max(0, staminaRef.current - (0.3 + Math.random() * 0.4));
         
         // If stamina is depleted, stop and rest
         if (staminaRef.current <= 0) {
@@ -180,11 +180,12 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
           showMessage("zzz... 💤", 2000);
           animationFrameRef.current = null;
           
-          // Recover stamina after resting
+          // Recover stamina after resting (random 1.5-3.5 seconds)
+          const recoveryTime = 1500 + Math.random() * 2000;
           setTimeout(() => {
             staminaRef.current = 100;
             isRestingRef.current = false;
-          }, 2500);
+          }, recoveryTime);
           return;
         }
         
