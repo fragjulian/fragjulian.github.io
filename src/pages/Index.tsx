@@ -170,7 +170,7 @@ const Index = () => {
               <p className="text-lg md:text-xl text-foreground/80 max-w-md">
                 A pragmatic software developer based in Austria
               </p>
-              <p className="text-base md:text-lg text-muted-foreground">
+              <p className="text-sm md:text-base text-muted-foreground">
                 Frontend software engineer @{' '}
                 <a 
                   href="https://www.dynatrace.com/" 
@@ -181,7 +181,7 @@ const Index = () => {
                   Dynatrace
                 </a>
               </p>
-              <p className="text-sm md:text-base text-muted-foreground/80">
+              <p className="text-sm md:text-base text-muted-foreground -mt-2">
                 building performant, reusable React components.
               </p>
             </div>
