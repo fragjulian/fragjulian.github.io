@@ -186,6 +186,8 @@ All colors MUST be HSL.
   height: 200vh;
   pointer-events: none;
   z-index: -1;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .space-stars::before {
@@ -264,4 +266,5 @@ All colors MUST be HSL.
 
 .rocket-animate {
   animation: rocket-float 3s ease-in-out infinite, fade-in 0.5s ease-out;
+  will-change: transform;
 }
