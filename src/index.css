@@ -161,7 +161,12 @@ All colors MUST be HSL.
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
-  scroll-timeline: --scroll-timeline block;
+}
+
+@supports (interpolate-size: allow-keywords) {
+  .snap-smooth {
+    interpolate-size: allow-keywords;
+  }
 }
 
 .snap-smooth > * {
