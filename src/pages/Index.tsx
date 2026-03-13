@@ -26,6 +26,7 @@ const workExperienceItems = [
 
 const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
+  const [fluidUserEnabled, setFluidUserEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
@@ -33,6 +34,7 @@ const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const userThemeRef = useRef<string | null>(null);
   const wasOnSpacePageRef = useRef(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Detect dev tools open
   useEffect(() => {
@@ -85,6 +87,15 @@ const Index = () => {
       const pageHeight = container.clientHeight;
       const newPage = Math.round(scrollTop / pageHeight);
       
+      // Disable fluid during scroll
+      if (fluidUserEnabled && !petActive) {
+        setFluidEnabled(false);
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = setTimeout(() => {
+          setFluidEnabled(true);
+        }, 300);
+      }
+
       if (newPage !== currentPage) {
         setCurrentPage(newPage);
         setAnimationKey(prev => prev + 1);
@@ -102,7 +113,7 @@ const Index = () => {
     const target = page * container.clientHeight;
     const start = container.scrollTop;
     const distance = target - start;
-    const duration = 800;
+    const duration = 1200;
     let startTime: number | null = null;
 
     const easeInOutCubic = (t: number) =>
@@ -121,12 +132,16 @@ const Index = () => {
 
   return (
     <div className="relative h-dvh overflow-hidden bg-background">
-      <FluidCursor colorMode={fluidEnabled ? 'enabled' : 'disabled'} />
+      <FluidCursor colorMode={fluidEnabled && fluidUserEnabled ? 'enabled' : 'disabled'} />
       {currentPage !== 3 && <ThemeToggle />}
       <CustomCursor />
       <FluidControls 
-        enabled={fluidEnabled} 
-        onToggle={() => setFluidEnabled(!fluidEnabled)} 
+        enabled={fluidUserEnabled} 
+        onToggle={() => {
+          const next = !fluidUserEnabled;
+          setFluidUserEnabled(next);
+          setFluidEnabled(next);
+        }} 
       />
       
       {/* Pixel Pet Easter Egg */}
