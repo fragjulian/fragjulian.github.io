@@ -159,7 +159,7 @@ All colors MUST be HSL.
 /* Smooth snap scrolling */
 .snap-smooth {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
+  scroll-snap-type: y proximity;
   -webkit-overflow-scrolling: touch;
 }
 
