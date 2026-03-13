@@ -186,6 +186,8 @@ All colors MUST be HSL.
   height: 200vh;
   pointer-events: none;
   z-index: -1;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .space-stars::before {
