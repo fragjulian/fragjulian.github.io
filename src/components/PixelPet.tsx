@@ -31,16 +31,16 @@ const PixelPet = ({ currentSection, onAppear }: PixelPetProps) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isReturning, setIsReturning] = useState(false);
   
-  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const stunTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stunTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clickCountRef = useRef(0);
-  const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSectionRef = useRef<Section | null>(null);
   const targetPositionRef = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number | null>(null);
   const cursorPositionRef = useRef({ x: 0, y: 0 });
-  const followTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const followTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isBoredRef = useRef(false);
   const staminaRef = useRef(100); // 0-100 stamina
   const isRestingRef = useRef(false);
