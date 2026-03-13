@@ -132,12 +132,16 @@ const Index = () => {
 
   return (
     <div className="relative h-dvh overflow-hidden bg-background">
-      <FluidCursor colorMode={fluidEnabled ? 'enabled' : 'disabled'} />
+      <FluidCursor colorMode={fluidEnabled && fluidUserEnabled ? 'enabled' : 'disabled'} />
       {currentPage !== 3 && <ThemeToggle />}
       <CustomCursor />
       <FluidControls 
-        enabled={fluidEnabled} 
-        onToggle={() => setFluidEnabled(!fluidEnabled)} 
+        enabled={fluidUserEnabled} 
+        onToggle={() => {
+          const next = !fluidUserEnabled;
+          setFluidUserEnabled(next);
+          setFluidEnabled(next);
+        }} 
       />
       
       {/* Pixel Pet Easter Egg */}
