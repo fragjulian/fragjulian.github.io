@@ -87,6 +87,15 @@ const Index = () => {
       const pageHeight = container.clientHeight;
       const newPage = Math.round(scrollTop / pageHeight);
       
+      // Disable fluid during scroll
+      if (fluidUserEnabled && !petActive) {
+        setFluidEnabled(false);
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = setTimeout(() => {
+          setFluidEnabled(true);
+        }, 300);
+      }
+
       if (newPage !== currentPage) {
         setCurrentPage(newPage);
         setAnimationKey(prev => prev + 1);
