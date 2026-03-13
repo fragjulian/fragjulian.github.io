@@ -102,7 +102,7 @@ const Index = () => {
     const target = page * container.clientHeight;
     const start = container.scrollTop;
     const distance = target - start;
-    const duration = 800;
+    const duration = 1200;
     let startTime: number | null = null;
 
     const easeInOutCubic = (t: number) =>
