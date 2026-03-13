@@ -26,6 +26,7 @@ const workExperienceItems = [
 
 const Index = () => {
   const [fluidEnabled, setFluidEnabled] = useState(true);
+  const [fluidUserEnabled, setFluidUserEnabled] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
@@ -33,6 +34,7 @@ const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const userThemeRef = useRef<string | null>(null);
   const wasOnSpacePageRef = useRef(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Detect dev tools open
   useEffect(() => {
