@@ -7,6 +7,7 @@ import CustomCursor from '@/components/CustomCursor';
 import FluidControls from '@/components/FluidControls';
 import LiquidGlass from '@/components/LiquidGlass';
 import PixelPet from '@/components/PixelPet';
+import { useIsMobile } from '@/hooks/use-mobile';
 import profilePhoto from '@/assets/profile-photo.jpeg';
 import rocket from '@/assets/rocket.png';
 
