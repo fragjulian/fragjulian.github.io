@@ -110,14 +110,16 @@ const Index = () => {
       <FluidCursor colorMode={fluidEnabled && fluidUserEnabled ? 'enabled' : 'disabled'} />
       {currentPage !== 3 && <ThemeToggle />}
       <CustomCursor />
-      <FluidControls 
-        enabled={fluidUserEnabled} 
-        onToggle={() => {
-          const next = !fluidUserEnabled;
-          setFluidUserEnabled(next);
-          setFluidEnabled(next);
-        }} 
-      />
+      {!isMobile && (
+        <FluidControls
+          enabled={fluidUserEnabled}
+          onToggle={() => {
+            const next = !fluidUserEnabled;
+            setFluidUserEnabled(next);
+            setFluidEnabled(next);
+          }}
+        />
+      )}
       
       {/* Pixel Pet Easter Egg */}
       {devToolsOpen && (
