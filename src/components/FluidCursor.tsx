@@ -1089,6 +1089,8 @@ const FluidCursor = ({
       return ((value - min) % range) + min;
     }
 
+    const isMobileDevice = window.innerWidth < 768;
+
     // Event listeners
     const handleMouseDown = (e: MouseEvent) => {
       lastInteractionTime = Date.now();
@@ -1113,12 +1115,12 @@ const FluidCursor = ({
       lastInteractionTime = Date.now();
       idleSplatTimer = 0;
       const touches = e.targetTouches;
-      
+
       // Ensure we have enough pointers for multi-touch
       while (pointers.length < touches.length) {
         pointers.push(pointerPrototype());
       }
-      
+
       for (let i = 0; i < touches.length; i++) {
         const pointer = pointers[i];
         const posX = scaleByPixelRatio(touches[i].clientX);
@@ -1133,29 +1135,29 @@ const FluidCursor = ({
       lastInteractionTime = Date.now();
       idleSplatTimer = 0;
       const touches = e.targetTouches;
-      
+
       for (let i = 0; i < touches.length; i++) {
         // Find the pointer with matching ID
         let pointer = pointers.find(p => p.id === touches[i].identifier);
         if (!pointer) {
           pointer = pointers[Math.min(i, pointers.length - 1)];
         }
-        
+
         const posX = scaleByPixelRatio(touches[i].clientX);
         const posY = scaleByPixelRatio(touches[i].clientY);
-        
+
         // Calculate velocity for more responsive swipe animations
         const prevX = pointer.texcoordX * canvas.width;
         const prevY = (1 - pointer.texcoordY) * canvas.height;
         const dx = posX - prevX;
         const dy = posY - prevY;
         const velocity = Math.sqrt(dx * dx + dy * dy);
-        
+
         // Boost splat intensity based on swipe velocity
         if (velocity > 5) {
           pointer.color = generateColor();
         }
-        
+
         updatePointerMoveData(pointer, posX, posY, pointer.color);
       }
     };
@@ -1170,22 +1172,27 @@ const FluidCursor = ({
       }
     };
 
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    // Only register interactive events on desktop; mobile keeps idle animations only
+    if (!isMobileDevice) {
+      window.addEventListener('mousedown', handleMouseDown);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('touchstart', handleTouchStart, { passive: true });
+      window.addEventListener('touchmove', handleTouchMove, { passive: true });
+      window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
 
     // Start animation
     updateFrame();
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
+      if (!isMobileDevice) {
+        window.removeEventListener('mousedown', handleMouseDown);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('touchstart', handleTouchStart);
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('touchend', handleTouchEnd);
+      }
     };
   }, [simResolution, dyeResolution, densityDissipation, velocityDissipation, pressure, pressureIterations, curl, splatRadius, splatForce, shading, colorUpdateSpeed, transparent, colorMode]);
 
