@@ -36,6 +36,7 @@ const Index = () => {
   const userThemeRef = useRef<string | null>(null);
   const wasOnSpacePageRef = useRef(false);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMobile = useIsMobile();
 
   // Detect dev tools open
   useEffect(() => {
